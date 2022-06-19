@@ -13,11 +13,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean login(String email, String password) {
+        log.info("login tried - email: {}, password: {}", email, password);
         return userReader.findByEmail(email).getPassword().equals(password);
     }
 
     @Override
     public UserInfo join(UserCommand.DomainUserRegisterRequest domainUserRegisterRequest) {
+        log.info("domain join request: {}", domainUserRegisterRequest);
         User user = User.createDomainUser(
                 domainUserRegisterRequest.getEmail(),
                 domainUserRegisterRequest.getPassword(),
@@ -29,6 +31,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserInfo join(UserCommand.SocialUserRegisterRequest socialUserRegisterRequest) {
+        log.info("social join request: {}", socialUserRegisterRequest);
         User user = User.createSocialLoginUser(
                 socialUserRegisterRequest.getPlatform(),
                 socialUserRegisterRequest.getEmail(),

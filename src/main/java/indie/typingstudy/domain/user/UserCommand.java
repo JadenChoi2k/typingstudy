@@ -4,10 +4,16 @@ import indie.typingstudy.domain.socialuser.SocialPlatform;
 import lombok.*;
 
 public class UserCommand {
+    @Data
+    @Builder
+    public static class LoginRequest {
+        private String email;
+        private String password;
+    }
 
     @Data
     @Builder
-    static class DomainUserRegisterRequest {
+    public static class DomainUserRegisterRequest {
         private String email;
         private String password;
         private String username;
@@ -16,7 +22,7 @@ public class UserCommand {
 
     @Data
     @Builder
-    static class SocialUserRegisterRequest {
+    public static class SocialUserRegisterRequest {
         private SocialPlatform platform;
         private String email;
         private String username;

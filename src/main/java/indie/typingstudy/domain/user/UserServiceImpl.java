@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import static indie.typingstudy.domain.user.UserCommand.*;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -12,31 +14,31 @@ public class UserServiceImpl implements UserService {
     private final UserStore userStore;
 
     @Override
-    public boolean login(String email, String password) {
-        log.info("login tried - email: {}, password: {}", email, password);
-        return userReader.findByEmail(email).getPassword().equals(password);
+    public boolean login(LoginRequest request) {
+        log.info("login tried - email: {}, password: {}", request.getEmail(), request.getPassword());
+        return userReader.findByEmail(request.getEmail()).getPassword().equals(request.getPassword());
     }
 
     @Override
-    public UserInfo join(UserCommand.DomainUserRegisterRequest domainUserRegisterRequest) {
-        log.info("domain join request: {}", domainUserRegisterRequest);
+    public UserInfo join(DomainUserRegisterRequest request) {
+        log.info("domain join request: {}", request);
         User user = User.createDomainUser(
-                domainUserRegisterRequest.getEmail(),
-                domainUserRegisterRequest.getPassword(),
-                domainUserRegisterRequest.getUsername(),
-                domainUserRegisterRequest.getProfileUrl()
+                request.getEmail(),
+                request.getPassword(),
+                request.getUsername(),
+                request.getProfileUrl()
         );
         return UserInfo.of(userStore.store(user));
     }
 
     @Override
-    public UserInfo join(UserCommand.SocialUserRegisterRequest socialUserRegisterRequest) {
-        log.info("social join request: {}", socialUserRegisterRequest);
+    public UserInfo join(SocialUserRegisterRequest request) {
+        log.info("social join request: {}", request);
         User user = User.createSocialLoginUser(
-                socialUserRegisterRequest.getPlatform(),
-                socialUserRegisterRequest.getEmail(),
-                socialUserRegisterRequest.getUsername(),
-                socialUserRegisterRequest.getProfileUrl()
+                request.getPlatform(),
+                request.getEmail(),
+                request.getUsername(),
+                request.getProfileUrl()
         );
         return UserInfo.of(userStore.store(user));
     }

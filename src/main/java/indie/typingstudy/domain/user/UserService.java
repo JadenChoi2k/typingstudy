@@ -1,7 +1,7 @@
 package indie.typingstudy.domain.user;
 
 public interface UserService {
-    boolean login(String email, String password);
+    boolean login(UserCommand.LoginRequest loginRequest);
 
     UserInfo join(UserCommand.DomainUserRegisterRequest domainUserRegisterRequest);
 

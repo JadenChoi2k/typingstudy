@@ -1,6 +1,5 @@
 package indie.typingstudy.domain;
 
-import indie.typingstudy.domain.socialuser.SocialPlatform;
 import indie.typingstudy.domain.user.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -29,24 +28,24 @@ public class UserTest {
         assertThat(user.isSocial()).isFalse();
     }
 
-    @Test
-    @DisplayName("소셜 유저 생성")
-    void createSocial() {
-        // given
-        SocialPlatform platform = SocialPlatform.KAKAO;
-        String email = "test@kakao.com";
-        String username = "testuser";
-        String profileUrl = "kakaoprofile";
-        // when
-        User user = User.createSocialLoginUser(platform, email, username, profileUrl);
-        // then
-        assertThat(user.getPlatform()).isEqualTo(platform);
-        assertThat(user.getEmail()).isEqualTo(email);
-        assertThat(user.getPassword()).isNull();
-        assertThat(user.getUsername()).isEqualTo(username);
-        assertThat(user.getProfileUrl()).isEqualTo(profileUrl);
-        assertThat(user.isSocial()).isTrue();
-    }
+//    @Test
+//    @DisplayName("소셜 유저 생성")
+//    void createSocial() {
+//        // given
+//        SocialPlatform platform = SocialPlatform.KAKAO;
+//        String email = "test@kakao.com";
+//        String username = "testuser";
+//        String profileUrl = "kakaoprofile";
+//        // when
+//        User user = User.createSocialLoginUser(platform, email, username, profileUrl);
+//        // then
+//        assertThat(user.getPlatform()).isEqualTo(platform);
+//        assertThat(user.getEmail()).isEqualTo(email);
+//        assertThat(user.getPassword()).isNull();
+//        assertThat(user.getUsername()).isEqualTo(username);
+//        assertThat(user.getProfileUrl()).isEqualTo(profileUrl);
+//        assertThat(user.isSocial()).isTrue();
+//    }
 
     @Test
     @DisplayName("로그인 시 로그인 날짜 갱신")

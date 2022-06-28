@@ -1,7 +1,7 @@
 package indie.typingstudy.domain.user;
 
-import indie.typingstudy.domain.socialuser.SocialPlatform;
-import lombok.*;
+import lombok.Builder;
+import lombok.Data;
 
 public class UserCommand {
     @Data
@@ -23,7 +23,7 @@ public class UserCommand {
     @Data
     @Builder
     public static class SocialUserRegisterRequest {
-        private SocialPlatform platform;
+        private User.SocialPlatform platform;
         private String email;
         private String username;
         private String profileUrl;

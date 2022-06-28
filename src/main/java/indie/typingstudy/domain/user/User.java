@@ -1,7 +1,6 @@
 package indie.typingstudy.domain.user;
 
 import indie.typingstudy.domain.BaseTimeEntity;
-import indie.typingstudy.domain.socialuser.SocialPlatform;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,10 +22,10 @@ public class User extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private SocialPlatform platform;
 
-    @Column(unique = true, length = 30, nullable = true)
+    @Column(unique = true, length = 30)
     private String email;
 
-    @Column(length = 30, nullable = true)
+    @Column(length = 30)
     private String password;
 
     @Column(length = 20, nullable = false)
@@ -34,7 +33,16 @@ public class User extends BaseTimeEntity {
     @Column(nullable = false)
     private String profileUrl;
 
+    @Enumerated(EnumType.STRING)
+    private SocialPlatform provider;
+
+    private String providerId;
+
     private LocalDateTime lastLogin;
+
+    public enum SocialPlatform {
+        DOMAIN, GOOGLE, KAKAO
+    }
 
     private User(SocialPlatform platform, String email, String password, String username, String profileUrl) {
         this.platform = platform;

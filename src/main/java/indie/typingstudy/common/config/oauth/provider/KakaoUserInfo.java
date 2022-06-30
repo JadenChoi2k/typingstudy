@@ -8,11 +8,16 @@ public class KakaoUserInfo implements OAuth2UserInfo {
 
     @Override
     public String getProvider() {
-        return null;
+        return "kakao";
     }
 
     @Override
     public String getEmail() {
+        return null;
+    }
+
+    @Override
+    public String getProfileUrl() {
         return null;
     }
 }

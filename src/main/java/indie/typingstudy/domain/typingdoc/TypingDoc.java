@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -34,6 +35,7 @@ public class TypingDoc extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Access access;
 
+    @ColumnDefault(value = "0")
     private Integer views;
 
     private LocalDateTime lastStudyDate;

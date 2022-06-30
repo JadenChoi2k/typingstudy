@@ -1,5 +1,6 @@
 ﻿package indie.typingstudy.common.config;
 
+import indie.typingstudy.common.config.oauth.PrincipalOauth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,7 +16,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @RequiredArgsConstructor
 public class SecurityConfig {
     // PrincipalOauth2UserService가 di될 예정
-    private final OAuth2UserService oAuth2UserService;
+    private final PrincipalOauth2UserService oAuth2UserService;
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
@@ -30,7 +31,7 @@ public class SecurityConfig {
                 .formLogin().disable()
                 .httpBasic().disable()
                 .authorizeRequests()
-                .antMatchers("/api/v1/user/**", "/api/v1/").authenticated()
+                .antMatchers("/api/v1/user/**", "/api/v1/docs/**").authenticated()
                 .anyRequest().permitAll()
                 .and()
                 .oauth2Login()

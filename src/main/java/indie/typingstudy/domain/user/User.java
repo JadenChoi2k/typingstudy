@@ -33,9 +33,8 @@ public class User extends BaseTimeEntity {
     @Column(nullable = false)
     private String profileUrl;
 
-    @Enumerated(EnumType.STRING)
-    private SocialPlatform provider;
-
+    // if domain user, be null.
+    @Column(nullable = true)
     private String providerId;
 
     private LocalDateTime lastLogin;

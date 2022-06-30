@@ -27,4 +27,9 @@ public class DocObject extends BaseTimeEntity {
     private TypingDoc doc;
 
     private Byte[] data;
+
+    public DocObject(TypingDoc doc, Byte[] data) {
+        this.doc = doc;
+        this.data = data;
+    }
 }

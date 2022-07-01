@@ -1,7 +1,9 @@
 package indie.typingstudy.common.config;
 
 import indie.typingstudy.common.config.jwt.JwtAuthenticationFilter;
+import indie.typingstudy.common.config.jwt.JwtAuthorizationFilter;
 import indie.typingstudy.common.config.oauth.PrincipalOauth2UserService;
+import indie.typingstudy.infrastructure.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,6 +19,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
     // PrincipalOauth2UserService가 di될 예정
     private final PrincipalOauth2UserService oAuth2UserService;
+    private final UserRepository userRepository;
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
@@ -31,6 +34,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .formLogin().disable()
                 .httpBasic().disable()
                 .addFilter(new JwtAuthenticationFilter(authenticationManager()))
+                .addFilter(new JwtAuthorizationFilter(authenticationManager(), userRepository))
                 .authorizeRequests()
                 .antMatchers("/api/v1/user/join").permitAll()
                 .antMatchers("/api/v1/user/**", "/api/v1/docs/**").authenticated()

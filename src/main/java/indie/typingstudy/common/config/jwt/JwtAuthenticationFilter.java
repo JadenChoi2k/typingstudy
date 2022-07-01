@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Date;
+import java.util.UUID;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -30,7 +31,8 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         try {
             ObjectMapper om = new ObjectMapper();
             var loginRequest = om.readValue(request.getInputStream(), UserDto.LoginRequest.class);
-            log.info("로그인 시도: {}", loginRequest);
+            request.setAttribute("JwtAuth", UUID.randomUUID().toString());
+            log.info("[{}] 로그인 시도: {}", request.getAttribute("JwtAuth"), loginRequest);
             UsernamePasswordAuthenticationToken authenticationToken =
                     new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword());
             return authenticationManager.authenticate(authenticationToken);
@@ -42,7 +44,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
         var principalDetails = (PrincipalDetails) authResult.getPrincipal();
-        log.info("로그인 완료: {}", principalDetails.getUsername());
+        log.info("[{}] 로그인 완료: {}", request.getAttribute("JwtAuth"), principalDetails.getUsername());
         String jwt = JWT.create()
                 .withSubject(principalDetails.getUsername())
                 .withExpiresAt(new Date(System.currentTimeMillis() + JwtProperty.TIMEOUT))
@@ -55,7 +57,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
-        log.info("로그인 실패: ", failed);
+        log.info("[{}] 로그인 실패", request.getAttribute("JwtAuth"));
         super.unsuccessfulAuthentication(request, response, failed);
     }
 }

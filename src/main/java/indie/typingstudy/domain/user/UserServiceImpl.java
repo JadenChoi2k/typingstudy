@@ -2,6 +2,7 @@ package indie.typingstudy.domain.user;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import static indie.typingstudy.domain.user.UserCommand.*;
@@ -12,6 +13,7 @@ import static indie.typingstudy.domain.user.UserCommand.*;
 public class UserServiceImpl implements UserService {
     private final UserReader userReader;
     private final UserStore userStore;
+    private final BCryptPasswordEncoder passwordEncoder;
 
     @Override
     public boolean login(LoginRequest request) {
@@ -24,7 +26,7 @@ public class UserServiceImpl implements UserService {
         log.info("domain join request: {}", request);
         User user = User.createDomainUser(
                 request.getEmail(),
-                request.getPassword(),
+                passwordEncoder.encode(request.getPassword()),
                 request.getUsername(),
                 request.getProfileUrl()
         );

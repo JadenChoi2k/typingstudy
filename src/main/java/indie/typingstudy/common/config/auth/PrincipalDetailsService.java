@@ -1,4 +1,4 @@
-﻿package indie.typingstudy.common.config.auth;
+package indie.typingstudy.common.config.auth;
 
 import indie.typingstudy.domain.user.User;
 import indie.typingstudy.infrastructure.user.UserRepository;

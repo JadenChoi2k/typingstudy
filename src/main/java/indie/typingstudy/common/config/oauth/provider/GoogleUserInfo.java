@@ -1,4 +1,4 @@
-﻿package indie.typingstudy.common.config.oauth.provider;
+package indie.typingstudy.common.config.oauth.provider;
 
 import lombok.RequiredArgsConstructor;
 

@@ -25,12 +25,11 @@ public class User extends BaseTimeEntity {
     @Column(unique = true, length = 30)
     private String email;
 
-    @Column(length = 30)
     private String password;
 
     @Column(length = 20, nullable = false)
     private String username;
-    @Column(nullable = false)
+
     private String profileUrl;
 
     // if domain user, be null.

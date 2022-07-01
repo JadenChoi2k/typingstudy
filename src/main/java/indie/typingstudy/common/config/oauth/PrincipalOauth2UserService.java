@@ -1,4 +1,4 @@
-﻿package indie.typingstudy.common.config.oauth;
+package indie.typingstudy.common.config.oauth;
 
 import indie.typingstudy.infrastructure.user.UserRepository;
 import lombok.RequiredArgsConstructor;

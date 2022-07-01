@@ -20,7 +20,7 @@ public class DocComment extends BaseTimeEntity {
     private Long id;
 
     @ManyToOne
-    @Column(name = "doc_id")
+    @JoinColumn(name = "doc_id")
     private TypingDoc doc;
 
     @Column(length = 1023)

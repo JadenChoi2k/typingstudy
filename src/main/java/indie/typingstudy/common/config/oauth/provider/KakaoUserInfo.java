@@ -1,4 +1,4 @@
-﻿package indie.typingstudy.common.config.oauth.provider;
+package indie.typingstudy.common.config.oauth.provider;
 
 public class KakaoUserInfo implements OAuth2UserInfo {
     @Override

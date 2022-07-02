@@ -1,7 +1,5 @@
 package indie.typingstudy.common.config.jwt;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import indie.typingstudy.common.config.auth.PrincipalDetails;
 import indie.typingstudy.interfaces.user.UserDto;
@@ -18,12 +16,11 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Date;
 import java.util.UUID;
 
 @Slf4j
 @RequiredArgsConstructor
-public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
+public class JwtBasicAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     private final AuthenticationManager authenticationManager;
 
     @Override
@@ -45,12 +42,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
         var principalDetails = (PrincipalDetails) authResult.getPrincipal();
         log.info("[{}] 로그인 완료: {}", request.getAttribute("JwtAuth"), principalDetails.getUsername());
-        String jwt = JWT.create()
-                .withSubject(principalDetails.getUsername())
-                .withExpiresAt(new Date(System.currentTimeMillis() + JwtProperty.TIMEOUT))
-                .withClaim("id", principalDetails.getUser().getId())
-                .withClaim("username", principalDetails.getUser().getUsername())
-                .sign(Algorithm.HMAC512(JwtProperty.SECRET));
+        String jwt = JwtUtils.createDomainJwt(principalDetails);
         response.addHeader(JwtProperty.JWT_HEADER, JwtProperty.JWT_PREFIX + jwt);
         log.info("user({})에게 jwt 발급 완료", principalDetails.getUsername());
     }

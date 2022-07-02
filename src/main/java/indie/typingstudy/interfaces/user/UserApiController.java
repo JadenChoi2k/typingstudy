@@ -1,5 +1,6 @@
 package indie.typingstudy.interfaces.user;
 
+import indie.typingstudy.application.user.UserFacade;
 import indie.typingstudy.domain.user.UserCommand;
 import indie.typingstudy.domain.user.UserInfo;
 import indie.typingstudy.domain.user.UserService;
@@ -15,13 +16,13 @@ import java.util.Map;
 @RequestMapping("/api/v1/user")
 @RequiredArgsConstructor
 public class UserApiController {
-    private final UserService userService;
+    private final UserFacade userFacade;
     private final UserDtoMapper userDtoMapper;
 
     @PostMapping("/join")
     public Map<String, Object> join(@RequestBody UserDto.JoinRequest request) {
         UserCommand.DomainUserRegisterRequest registerRequest = userDtoMapper.of(request);
-        UserInfo joinedUser = userService.join(registerRequest);
+        UserInfo joinedUser = userFacade.join(registerRequest);
         UserDto.JoinSuccess success = userDtoMapper.of(joinedUser);
         Map<String, Object> result = new HashMap<>();
         result.put("result", "success");

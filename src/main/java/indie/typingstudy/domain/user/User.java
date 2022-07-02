@@ -42,7 +42,7 @@ public class User extends BaseTimeEntity {
         DOMAIN, GOOGLE, KAKAO
     }
 
-    private User(SocialPlatform platform, String email, String password, String username, String profileUrl) {
+    public User(SocialPlatform platform, String email, String password, String username, String profileUrl) {
         this.platform = platform;
         this.email = email;
         this.password = password;

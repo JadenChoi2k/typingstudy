@@ -1,7 +1,8 @@
 package indie.typingstudy.common.config;
 
-import indie.typingstudy.common.config.jwt.JwtAuthenticationFilter;
+import indie.typingstudy.common.config.jwt.JwtBasicAuthenticationFilter;
 import indie.typingstudy.common.config.jwt.JwtAuthorizationFilter;
+import indie.typingstudy.common.config.oauth.CustomAuthenticationSuccessHandler;
 import indie.typingstudy.common.config.oauth.PrincipalOauth2UserService;
 import indie.typingstudy.infrastructure.user.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 
 @Configuration
 @EnableWebSecurity // 필터 체인 관리 시작 어노테이션
@@ -28,20 +30,22 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.csrf().disable();
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
+                .csrf().disable()
                 .formLogin().disable()
                 .httpBasic().disable()
-                .addFilter(new JwtAuthenticationFilter(authenticationManager()))
-                .addFilter(new JwtAuthorizationFilter(authenticationManager(), userRepository))
+                .addFilter(new JwtBasicAuthenticationFilter(authenticationManager()))
+                .addFilterBefore(new JwtAuthorizationFilter(authenticationManager(), userRepository), LogoutFilter.class)
                 .authorizeRequests()
                 .antMatchers("/api/v1/user/join").permitAll()
                 .antMatchers("/api/v1/user/**", "/api/v1/docs/**").authenticated()
                 .anyRequest().permitAll()
                 .and()
                 .oauth2Login()
+                .successHandler(new CustomAuthenticationSuccessHandler())
                 .userInfoEndpoint()
                 .userService(oAuth2UserService);
+        http.httpBasic().disable();
     }
 }

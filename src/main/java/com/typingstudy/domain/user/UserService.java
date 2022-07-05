@@ -1,5 +1,9 @@
 package com.typingstudy.domain.user;
 
+import com.typingstudy.domain.user.favorite.FavoriteGroupInfo;
+
+import java.util.List;
+
 public interface UserService {
     boolean login(UserCommand.LoginRequest loginRequest);
 
@@ -8,4 +12,9 @@ public interface UserService {
     UserInfo join(UserCommand.SocialUserRegisterRequest socialUserRegisterRequest);
 
     UserInfo retrieve(Long userId);
+    
+    List<FavoriteGroupInfo.GroupInfo> retrieveFavoriteGroups(Long userId, int page);
+
+    // 만약 group의 소유자가 요청된 user가 아니면 InvalidAccessException을 발생시킨다.
+    List<FavoriteGroupInfo.ItemInfo> retrieveFavoriteGroup(Long userId, Long groupId, int page);
 }

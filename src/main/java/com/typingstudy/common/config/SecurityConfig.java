@@ -36,7 +36,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .formLogin().disable()
                 .httpBasic().disable()
                 .addFilter(new JwtBasicAuthenticationFilter(authenticationManager()))
-                .addFilterBefore(new JwtAuthorizationFilter(authenticationManager(), userRepository), LogoutFilter.class)
+                .addFilter(new JwtAuthorizationFilter(authenticationManager(), userRepository))
                 .authorizeRequests()
                 .antMatchers("/api/v1/user/join").permitAll()
                 .antMatchers("/api/v1/user/**", "/api/v1/docs/**").authenticated()

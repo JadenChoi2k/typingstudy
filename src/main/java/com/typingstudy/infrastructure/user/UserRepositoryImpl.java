@@ -1,10 +1,13 @@
 package com.typingstudy.infrastructure.user;
 
 import com.typingstudy.domain.user.User;
+import com.typingstudy.domain.user.favorite.FavoriteGroup;
+import com.typingstudy.domain.user.favorite.FavoriteItem;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j

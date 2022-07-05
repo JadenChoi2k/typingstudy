@@ -1,18 +1,33 @@
 package com.typingstudy.interfaces.typingdoc;
 
+import com.typingstudy.application.typingdoc.TypingDocFacade;
+import com.typingstudy.common.response.CommonResponse;
+import com.typingstudy.domain.typingdoc.TypingDocInfo;
+import com.typingstudy.interfaces.SecurityUtils;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
+@RequestMapping("/api/v1/docs")
 @RestController
 @RequiredArgsConstructor
 public class TypingDocApiController {
+    private TypingDocFacade docFacade;
+
+    @GetMapping("/")
+    public CommonResponse docs(
+            @RequestParam(name = "page", defaultValue = "0") Integer page,
+            @RequestParam(name = "sort", defaultValue = "createDate") String sort,
+            @RequestParam(name = "direction", defaultValue = "desc") String direction) {
+        List<TypingDocInfo.PageItem> pageResult =
+                docFacade.retrieveDocs(SecurityUtils.getUserId(), page, sort, direction);
+        return CommonResponse.success(pageResult);
+    }
 
     @GetMapping("/{docId}")
-    public Map<String, Object> fetchOne() {
+    public Map<String, Object> findOne() {
         return null;
     }
 
@@ -28,11 +43,6 @@ public class TypingDocApiController {
 
     @GetMapping("/{docId}/obj/{objId}")
     public Map<String, Object> docObject() {
-        return null;
-    }
-
-    @GetMapping("/")
-    public Map<String, Object> docs() {
         return null;
     }
 

@@ -2,7 +2,9 @@ package com.typingstudy.common.config.jwt;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.SignatureVerificationException;
 import com.typingstudy.common.config.auth.PrincipalDetails;
+import com.typingstudy.common.exception.InvalidTokenException;
 import com.typingstudy.infrastructure.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -33,7 +35,14 @@ public class JwtUtils {
     }
 
     public static String getEmailFromJwt(String jwt) {
-        return JWT.require(Algorithm.HMAC512(JwtProperty.SECRET)).build()
-                .verify(jwt).getSubject();
+        if (jwt == null) {
+            return null;
+        }
+        try {
+            return JWT.require(Algorithm.HMAC512(JwtProperty.SECRET)).build()
+                    .verify(jwt).getSubject();
+        } catch (SignatureVerificationException e) {
+            throw new InvalidTokenException();
+        }
     }
 }

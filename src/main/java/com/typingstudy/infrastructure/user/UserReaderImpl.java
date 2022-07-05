@@ -1,18 +1,25 @@
 package com.typingstudy.infrastructure.user;
 
+import com.typingstudy.domain.typingdoc.TypingDoc;
 import com.typingstudy.domain.user.User;
 import com.typingstudy.domain.user.UserReader;
+import com.typingstudy.domain.user.favorite.FavoriteGroup;
+import com.typingstudy.domain.user.favorite.FavoriteItem;
+import com.typingstudy.infrastructure.user.favorite.FavoriteRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.List;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class UserReaderImpl implements UserReader {
     private final UserRepository userRepository;
+    private final FavoriteRepository favoriteRepository;
 
     @Override
     public User findById(Long userId) {
@@ -24,6 +31,16 @@ public class UserReaderImpl implements UserReader {
     public User findByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new EntityNotFoundException("user not found. email: " + email));
+    }
+
+    @Override
+    public List<FavoriteGroup> findAllFavoriteGroups(Long userId, int page, int size) {
+        return favoriteRepository.findAllFavoriteGroups(userId, page, size);
+    }
+
+    @Override
+    public List<FavoriteItem> findAllFavoriteItems(Long groupId, int page, int size) {
+        return favoriteRepository.findAllFavoriteItems(groupId, page, size);
     }
 
     @Override

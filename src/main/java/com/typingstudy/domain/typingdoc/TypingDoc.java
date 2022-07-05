@@ -20,8 +20,6 @@ public class TypingDoc extends BaseEntity {
     @Column(name = "doc_id")
     private Long id;
 
-    private String docToken;
-
     @Column(nullable = false)
     private Long authorId;
 

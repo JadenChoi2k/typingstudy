@@ -28,25 +28,6 @@ public class UserTest {
         assertThat(user.isSocial()).isFalse();
     }
 
-//    @Test
-//    @DisplayName("소셜 유저 생성")
-//    void createSocial() {
-//        // given
-//        SocialPlatform platform = SocialPlatform.KAKAO;
-//        String email = "test@kakao.com";
-//        String username = "testuser";
-//        String profileUrl = "kakaoprofile";
-//        // when
-//        User user = User.createSocialLoginUser(platform, email, username, profileUrl);
-//        // then
-//        assertThat(user.getPlatform()).isEqualTo(platform);
-//        assertThat(user.getEmail()).isEqualTo(email);
-//        assertThat(user.getPassword()).isNull();
-//        assertThat(user.getUsername()).isEqualTo(username);
-//        assertThat(user.getProfileUrl()).isEqualTo(profileUrl);
-//        assertThat(user.isSocial()).isTrue();
-//    }
-
     @Test
     @DisplayName("로그인 시 로그인 날짜 갱신")
     void onLogin() {
@@ -58,5 +39,16 @@ public class UserTest {
         // then
         assertThat(user.getLastLogin())
                 .isBetween(LocalDateTime.now().minusMinutes(1), LocalDateTime.now());
+    }
+
+    @Test
+    @DisplayName("소셜 유저 확인")
+    void isSocial() {
+        // given
+        User domainUser = new User(User.SocialPlatform.DOMAIN, "user@domain.com", "12345", "domain_user", null);
+        User socialUser = new User(User.SocialPlatform.GOOGLE, "user@gmail.com", "12345", "social_user", null);
+        // then
+        assertThat(domainUser.isSocial()).isFalse();
+        assertThat(socialUser.isSocial()).isTrue();
     }
 }

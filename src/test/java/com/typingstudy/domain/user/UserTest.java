@@ -1,6 +1,8 @@
-package com.typingstudy.domain;
+package com.typingstudy.domain.user;
 
 import com.typingstudy.domain.user.User;
+import com.typingstudy.domain.user.favorite.FavoriteGroup;
+import com.typingstudy.domain.user.favorite.FavoriteItem;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -50,5 +52,33 @@ public class UserTest {
         // then
         assertThat(domainUser.isSocial()).isFalse();
         assertThat(socialUser.isSocial()).isTrue();
+    }
+
+    @Test
+    @DisplayName("즐겨찾기 그룹 생성")
+    void create_favorite_group() {
+        // given
+        User user = new User(User.SocialPlatform.DOMAIN, "user@domain.com", "12345", "domain_user", null);
+        String groupName = "my favorite";
+        // when
+        FavoriteGroup favoriteGroup = user.createFavoriteGroup(groupName);
+        // then
+        assertThat(favoriteGroup.getUser()).isEqualTo(user);
+        assertThat(favoriteGroup.getGroupName()).isEqualTo(groupName);
+    }
+
+    @Test
+    @DisplayName("즐겨찾기 그룹 생성 후 아이템 생성")
+    void create_favorite_group_and_item() {
+        // given
+        User user = new User(User.SocialPlatform.DOMAIN, "user@domain.com", "12345", "domain_user", null);
+        String groupName = "my favorite";
+        Long docId = 5L;
+        FavoriteGroup favoriteGroup = user.createFavoriteGroup(groupName);
+        // when
+        FavoriteItem item = favoriteGroup.createItem(docId);
+        // then
+        assertThat(item.getGroup()).isEqualTo(favoriteGroup);
+        assertThat(item.getDocId()).isEqualTo(docId);
     }
 }

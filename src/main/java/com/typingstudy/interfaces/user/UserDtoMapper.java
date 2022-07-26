@@ -2,6 +2,7 @@ package com.typingstudy.interfaces.user;
 
 import com.typingstudy.domain.user.UserCommand;
 import com.typingstudy.domain.user.UserInfo;
+import com.typingstudy.domain.user.favorite.FavoriteGroupInfo;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
@@ -15,5 +16,9 @@ public interface UserDtoMapper {
 
     UserCommand.DomainUserRegisterRequest of(UserDto.JoinRequest joinRequest);
 
-    UserDto.JoinSuccess of(UserInfo userInfo);
+    UserDto.Main of(UserInfo userInfo);
+
+    UserDto.FavoriteItemDto of(FavoriteGroupInfo.ItemInfo itemInfo);
+
+    UserDto.FavoriteGroupDto of(FavoriteGroupInfo.GroupInfo groupInfo);
 }

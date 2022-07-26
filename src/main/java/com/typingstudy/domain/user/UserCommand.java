@@ -28,4 +28,18 @@ public class UserCommand {
         private String username;
         private String profileUrl;
     }
+
+    @Data
+    @Builder
+    public static class CreateFavoriteGroupRequest {
+        private String groupName;
+        private Long userId;
+    }
+
+    @Data
+    @Builder
+    public static class AddFavoriteItemRequest {
+        private Long groupId;
+        private String docToken;
+    }
 }

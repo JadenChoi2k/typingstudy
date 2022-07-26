@@ -12,6 +12,10 @@ public interface UserService {
     UserInfo join(UserCommand.SocialUserRegisterRequest socialUserRegisterRequest);
 
     UserInfo retrieve(Long userId);
+
+    FavoriteGroupInfo.GroupInfo createFavoriteGroup(UserCommand.CreateFavoriteGroupRequest createFavoriteGroupRequest);
+
+    FavoriteGroupInfo.ItemInfo addFavoriteItem(UserCommand.AddFavoriteItemRequest addFavoriteItemRequest);
     
     List<FavoriteGroupInfo.GroupInfo> retrieveFavoriteGroups(Long userId, int page);
 

@@ -1,11 +1,15 @@
 package com.typingstudy.domain.typingdoc;
 
+import com.typingstudy.common.utils.TokenGenerator;
 import com.typingstudy.domain.BaseEntity;
+import com.typingstudy.domain.typingdoc.comment.DocComment;
+import com.typingstudy.domain.typingdoc.history.DocReviewHistory;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
+import org.springframework.util.StringUtils;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -19,6 +23,9 @@ public class TypingDoc extends BaseEntity {
     @GeneratedValue
     @Column(name = "doc_id")
     private Long id;
+
+    @Column(unique = true, nullable = false)
+    private String docToken;
 
     @Column(nullable = false)
     private Long authorId;
@@ -48,6 +55,7 @@ public class TypingDoc extends BaseEntity {
     @Builder
     public TypingDoc(Long authorId, String title, String content, Access access) {
         this.authorId = authorId;
+        this.docToken = TokenGenerator.generate();
         this.title = title;
         this.content = content;
         this.access = access;
@@ -59,8 +67,14 @@ public class TypingDoc extends BaseEntity {
         this.views++;
     }
 
-    // 복습한 날짜 갱신
-    public void onReview() {
+    // 복습한 날짜 갱신. history 객체를 반환한다.
+    public DocReviewHistory review() {
         this.lastStudyDate = LocalDateTime.now();
+        return new DocReviewHistory(this);
+    }
+
+    // 이 문서의 코멘트를 생성한다.
+    public DocComment createComment(Long userId, String content) {
+        return new DocComment(this, content, userId);
     }
 }

@@ -21,4 +21,14 @@ public class TypingDocReaderImpl implements TypingDocReader {
     public List<TypingDoc> findAllByIdList(List<Long> idList) {
         return docRepository.findAllByIdList(idList);
     }
+
+    @Override
+    public List<TypingDoc> findAllByTokenList(List<String> tokenList) {
+        return docRepository.findAllByTokenList(tokenList);
+    }
+
+    @Override
+    public TypingDoc findByToken(String token) {
+        return docRepository.findByToken(token);
+    }
 }

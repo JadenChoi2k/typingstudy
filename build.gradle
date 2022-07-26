@@ -38,6 +38,11 @@ dependencies {
 	runtimeOnly 'mysql:mysql-connector-java'
 	annotationProcessor 'org.projectlombok:lombok'
 	annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.2.Final'
+
+	testCompileOnly('org.projectlombok:lombok')
+	testAnnotationProcessor('org.projectlombok:lombok')
+	// Required for MockMvc autoconfigure
+	testImplementation 'org.springframework.boot:spring-boot-starter-web'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
 }

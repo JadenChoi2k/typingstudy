@@ -2,12 +2,14 @@ package com.typingstudy.domain.user.favorite;
 
 import com.typingstudy.domain.user.User;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
 @Table(name = "user_favorite_group")
 @Entity
 @Getter
+@NoArgsConstructor
 public class FavoriteGroup {
     @Id
     @GeneratedValue
@@ -20,4 +22,13 @@ public class FavoriteGroup {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+    public FavoriteGroup(String groupName, User user) {
+        this.groupName = groupName;
+        this.user = user;
+    }
+
+    public FavoriteItem createItem(String docToken) {
+        return new FavoriteItem(this, docToken);
+    }
 }

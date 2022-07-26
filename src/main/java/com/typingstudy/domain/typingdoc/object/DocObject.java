@@ -26,10 +26,14 @@ public class DocObject extends BaseTimeEntity {
     @JoinColumn(name = "doc_id")
     private TypingDoc doc;
 
+    @Column(nullable = false)
+    private String fileName;
+
     private Byte[] data;
 
-    public DocObject(TypingDoc doc, Byte[] data) {
+    public DocObject(TypingDoc doc, String fileName, Byte[] data) {
         this.doc = doc;
+        this.fileName = fileName;
         this.data = data;
     }
 }

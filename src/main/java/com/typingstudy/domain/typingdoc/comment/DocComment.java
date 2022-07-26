@@ -2,7 +2,9 @@ package com.typingstudy.domain.typingdoc.comment;
 
 import com.typingstudy.domain.BaseTimeEntity;
 import com.typingstudy.domain.typingdoc.TypingDoc;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 
@@ -11,6 +13,7 @@ import javax.persistence.*;
  * public 문서에는 작성자 외에도 접근할 수 있다.
  */
 @Entity
+@Getter
 @NoArgsConstructor
 public class DocComment extends BaseTimeEntity {
 
@@ -24,6 +27,7 @@ public class DocComment extends BaseTimeEntity {
     private TypingDoc doc;
 
     @Column(length = 1023)
+    @Setter
     private String content;
 
     @Column(nullable = false)

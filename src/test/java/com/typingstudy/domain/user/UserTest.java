@@ -73,12 +73,12 @@ public class UserTest {
         // given
         User user = new User(User.SocialPlatform.DOMAIN, "user@domain.com", "12345", "domain_user", null);
         String groupName = "my favorite";
-        Long docId = 5L;
+        String docToken = "abcdefghijklmnopqrstuvwxyz";
         FavoriteGroup favoriteGroup = user.createFavoriteGroup(groupName);
         // when
-        FavoriteItem item = favoriteGroup.createItem(docId);
+        FavoriteItem item = favoriteGroup.createItem(docToken);
         // then
         assertThat(item.getGroup()).isEqualTo(favoriteGroup);
-        assertThat(item.getDocId()).isEqualTo(docId);
+        assertThat(item.getDocToken()).isEqualTo(docToken);
     }
 }

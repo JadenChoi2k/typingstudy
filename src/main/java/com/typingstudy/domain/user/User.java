@@ -1,6 +1,7 @@
 package com.typingstudy.domain.user;
 
 import com.typingstudy.domain.BaseTimeEntity;
+import com.typingstudy.domain.user.favorite.FavoriteGroup;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -65,5 +66,9 @@ public class User extends BaseTimeEntity {
 
     public void onLogin() {
         this.lastLogin = LocalDateTime.now();
+    }
+
+    public FavoriteGroup createFavoriteGroup(String groupName) {
+        return new FavoriteGroup(groupName, this);
     }
 }

@@ -28,6 +28,5 @@ public class DocReviewHistory extends BaseEntity {
 
     public DocReviewHistory(TypingDoc doc) {
         this.doc = doc;
-        doc.onReview();
     }
 }

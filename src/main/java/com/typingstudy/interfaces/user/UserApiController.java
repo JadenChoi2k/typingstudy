@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -29,7 +30,7 @@ public class UserApiController {
     public CommonResponse join(@RequestBody UserDto.JoinRequest request) {
         UserCommand.DomainUserRegisterRequest registerRequest = userDtoMapper.of(request);
         UserInfo joinedUser = userFacade.join(registerRequest);
-        UserDto.JoinSuccess success = userDtoMapper.of(joinedUser);
+        UserDto.Main success = userDtoMapper.of(joinedUser);
         return CommonResponse.success(success);
     }
 
@@ -40,7 +41,9 @@ public class UserApiController {
 
     @GetMapping("/me")
     public CommonResponse me() {
-        return CommonResponse.success(userFacade.retrieve(getUserId()));
+        return CommonResponse.success(
+                userDtoMapper.of(userFacade.retrieve(getUserId()))
+        );
     }
 
     // 유저가 작성한 문서들을 페이징한다. size는 기본 20개.
@@ -63,12 +66,16 @@ public class UserApiController {
 
     // favorites 구현 후 구현하기
     @GetMapping("/favorites")
-    public CommonResponse favorites() {
-        return null;
+    public CommonResponse favorites(@RequestParam(name = "page", defaultValue = "0") Integer page) {
+        return CommonResponse.success(
+                userFacade.retrieveFavoriteGroups(getUserId(), page).stream()
+                        .map(userDtoMapper::of)
+                        .collect(Collectors.toList())
+        );
     }
 
-    @RequestMapping("/favorites/create")
-    public CommonResponse createFavoriteGroup() {
+    @PostMapping("/favorites/create")
+    public CommonResponse createFavoriteGroup(@RequestBody UserDto.CreateFavoriteGroupRequest createRequest) {
         return null;
     }
 
@@ -77,11 +84,14 @@ public class UserApiController {
             @PathVariable Long groupId,
             @RequestParam(name = "page", defaultValue = "0") Integer page) {
         return CommonResponse.success(
-                userFacade.retrieveFavoriteGroup(getUserId(), groupId, page));
+                userFacade.retrieveFavoriteGroup(getUserId(), groupId, page).stream()
+                        .map(userDtoMapper::of)
+                        .collect(Collectors.toList())
+        );
     }
 
     @PatchMapping("/favorites/{groupId}")
-    public CommonResponse editFavoriteGroup() {
+    public CommonResponse editFavoriteGroup(@PathVariable Long groupId) {
         return null;
     }
 

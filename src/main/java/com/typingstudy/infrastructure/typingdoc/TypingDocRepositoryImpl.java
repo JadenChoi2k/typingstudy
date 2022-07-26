@@ -8,6 +8,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
+import javax.persistence.EntityNotFoundException;
+import javax.persistence.Id;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,5 +37,19 @@ public class TypingDocRepositoryImpl implements TypingDocRepository {
                 .setParameter("ids",
                         idList.stream().map(id -> Long.toString(id)).collect(Collectors.joining(", ")))
                 .getResultList();
+    }
+
+    @Override
+    public List<TypingDoc> findAllByTokenList(List<String> tokenList) {
+        return em.createQuery("select d from TypingDoc d " +
+                        "where d.docToken in (:tokens)", TypingDoc.class)
+                .setParameter("tokens",
+                        tokenList.stream().collect(Collectors.joining(", ")))
+                .getResultList();
+    }
+
+    @Override
+    public TypingDoc findByToken(String token) {
+        return docRepository.findByDocToken(token).orElseThrow(() -> new EntityNotFoundException("문서를 찾을 수 없습니다"));
     }
 }

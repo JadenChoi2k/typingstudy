@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
-@Table(name = "user_favorite")
+@Table(name = "user_favorite_item")
 @Entity
 @Getter
 @NoArgsConstructor
@@ -21,5 +21,10 @@ public class FavoriteItem extends BaseEntity {
     private FavoriteGroup group;
 
     @Column(nullable = false)
-    private Long docId;
+    private String docToken;
+
+    public FavoriteItem(FavoriteGroup group, String docToken) {
+        this.group = group;
+        this.docToken = docToken;
+    }
 }

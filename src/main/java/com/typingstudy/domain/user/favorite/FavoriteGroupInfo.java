@@ -1,8 +1,10 @@
 package com.typingstudy.domain.user.favorite;
 
+import com.typingstudy.domain.typingdoc.TypingDoc;
 import com.typingstudy.domain.typingdoc.TypingDocInfo;
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class FavoriteGroupInfo {
@@ -28,12 +30,26 @@ public class FavoriteGroupInfo {
     @Data
     public static class ItemInfo {
         private Long itemId;
-        private Long docId;
-        private TypingDocInfo.PageItem docInfo;
+        private String docToken;
+        private Long authorId;
+        private String title;
+        private TypingDoc.Access access;
+        private Integer views;
+        private LocalDateTime lastStudyDate;
+        private LocalDateTime createDate;
 
         public ItemInfo(FavoriteItem item) {
             this.itemId = item.getId();
-            this.docId = item.getDocId();
+            this.docToken = item.getDocToken();
+        }
+
+        public void setDocInfo(TypingDoc doc) {
+            this.authorId = doc.getAuthorId();
+            this.title = doc.getTitle();
+            this.access = doc.getAccess();
+            this.views = doc.getViews();
+            this.lastStudyDate = doc.getLastStudyDate();
+            this.createDate = doc.getCreatedAt();
         }
     }
 }

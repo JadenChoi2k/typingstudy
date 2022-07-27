@@ -6,6 +6,8 @@ import com.typingstudy.domain.typingdoc.comment.DocCommentInfo;
 import com.typingstudy.domain.typingdoc.comment.DocCommentReader;
 import com.typingstudy.domain.typingdoc.comment.DocCommentStore;
 import com.typingstudy.domain.typingdoc.history.DocReviewHistory;
+import com.typingstudy.domain.typingdoc.history.DocReviewHistoryInfo;
+import com.typingstudy.domain.typingdoc.history.DocReviewHistoryReader;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +21,7 @@ import java.util.stream.Collectors;
 public class TypingDocServiceImpl implements TypingDocService {
     private final TypingDocReader typingDocReader;
     private final DocCommentReader docCommentReader;
+    private final DocReviewHistoryReader historyReader;
     private final TypingDocStore typingDocStore;
     private final DocCommentStore docCommentStore;
 
@@ -60,6 +63,37 @@ public class TypingDocServiceImpl implements TypingDocService {
     }
 
     @Override
+    public List<DocReviewHistoryInfo> reviewHistoryByToken(String docToken) {
+        return historyReader.findAllByToken(docToken).stream()
+                .map(DocReviewHistoryInfo::of)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<DocReviewHistoryInfo> reviewHistoryByUserId(Long userId) {
+        return historyReader.findAllByUserId(userId).stream()
+                .map(DocReviewHistoryInfo::of)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public long reviewCountByToken(String docToken) {
+        return historyReader.countsByToken(docToken);
+    }
+
+    @Override
+    public long reviewCountByUserId(Long userId) {
+        return historyReader.countsByUserId(userId);
+    }
+
+    @Override
+    public List<DocCommentInfo.Main> retrieveComments(String docToken) {
+        return docCommentReader.findAll(docToken).stream()
+                .map(comment -> DocCommentInfo.Main.of(comment, docToken))
+                .toList();
+    }
+
+    @Override
     public TypingDocInfo.Main createDoc(DocCommand.CreateRequest request) {
         TypingDoc doc = TypingDoc.builder()
                 .authorId(request.getAuthorId())
@@ -74,24 +108,15 @@ public class TypingDocServiceImpl implements TypingDocService {
     public DocCommentInfo.Main addComment(DocCommand.AddCommentRequest request) {
         TypingDoc doc = typingDocReader.findByToken(request.getDocToken());
         DocComment comment = docCommentStore.store(doc.createComment(request.getUserId(), request.getContent()));
-        return DocCommentInfo.Main.builder()
-                .id(comment.getId())
-                .docToken(doc.getDocToken())
-                .content(comment.getContent())
-                .userId(comment.getUserId())
-                .build();
+        return DocCommentInfo.Main.of(comment);
     }
 
     @Override
     public DocCommentInfo.Main editComment(DocCommand.EditCommentRequest request) {
         DocComment comment = docCommentReader.findById(request.getCommentId());
         comment.setContent(request.getContent());
-        return DocCommentInfo.Main.builder()
-                .id(comment.getId())
-                .docToken(null)
-                .content(comment.getContent())
-                .userId(comment.getUserId())
-                .build();
+        // 최적화를 고려. 만약 of 메서드를 통해서 초기화한다면 lazyInitialization 발생.
+        return DocCommentInfo.Main.of(comment, null);
     }
 
     @Override

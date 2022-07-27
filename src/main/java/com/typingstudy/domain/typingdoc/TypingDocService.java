@@ -1,6 +1,7 @@
 package com.typingstudy.domain.typingdoc;
 
 import com.typingstudy.domain.typingdoc.comment.DocCommentInfo;
+import com.typingstudy.domain.typingdoc.history.DocReviewHistoryInfo;
 
 import java.util.List;
 
@@ -13,7 +14,17 @@ public interface TypingDocService {
 
     void reviewDoc(DocCommand.ReviewRequest request);
 
+    List<DocReviewHistoryInfo> reviewHistoryByToken(String docToken);
+
+    List<DocReviewHistoryInfo> reviewHistoryByUserId(Long userId);
+
+    long reviewCountByToken(String docToken);
+
+    long reviewCountByUserId(Long userId);
+
     TypingDocInfo.Main createDoc(DocCommand.CreateRequest request);
+
+    List<DocCommentInfo.Main> retrieveComments(String docToken);
 
     DocCommentInfo.Main addComment(DocCommand.AddCommentRequest request);
 

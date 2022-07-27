@@ -1,12 +1,12 @@
 package com.typingstudy.infrastructure.typingdoc.comment;
 
+import com.typingstudy.common.exception.EntityNotFoundException;
 import com.typingstudy.domain.typingdoc.comment.DocComment;
 import com.typingstudy.domain.typingdoc.comment.DocCommentReader;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
-import javax.persistence.EntityNotFoundException;
 import java.util.List;
 
 @Slf4j

@@ -4,6 +4,7 @@ import com.typingstudy.common.utils.TokenGenerator;
 import com.typingstudy.domain.BaseEntity;
 import com.typingstudy.domain.typingdoc.comment.DocComment;
 import com.typingstudy.domain.typingdoc.history.DocReviewHistory;
+import com.typingstudy.domain.typingdoc.object.DocObject;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -76,5 +77,9 @@ public class TypingDoc extends BaseEntity {
     // 이 문서의 코멘트를 생성한다.
     public DocComment createComment(Long userId, String content) {
         return new DocComment(this, content, userId);
+    }
+
+    public DocObject createObject(String fileName, byte[] data) {
+        return new DocObject(this, fileName, data);
     }
 }

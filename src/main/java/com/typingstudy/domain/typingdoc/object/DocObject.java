@@ -29,9 +29,9 @@ public class DocObject extends BaseTimeEntity {
     @Column(nullable = false)
     private String fileName;
 
-    private Byte[] data;
+    private byte[] data;
 
-    public DocObject(TypingDoc doc, String fileName, Byte[] data) {
+    public DocObject(TypingDoc doc, String fileName, byte[] data) {
         this.doc = doc;
         this.fileName = fileName;
         this.data = data;

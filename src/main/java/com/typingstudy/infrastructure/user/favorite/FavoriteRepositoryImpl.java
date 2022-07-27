@@ -38,4 +38,25 @@ public class FavoriteRepositoryImpl implements FavoriteRepository {
                 .setFirstResult(page * size)
                 .getResultList();
     }
+
+    @Override
+    public FavoriteGroup findGroupById(Long groupId) {
+        return em.find(FavoriteGroup.class, groupId);
+    }
+
+    @Override
+    public List<FavoriteGroup> findAllGroups(Long userId) {
+        return em.createQuery("select g from FavoriteGroup g" +
+                " where g.user.id = :userId", FavoriteGroup.class)
+                .setParameter("userId", userId)
+                .getResultList();
+    }
+
+    @Override
+    public List<FavoriteItem> findAllItems(Long groupId) {
+        return em.createQuery("select item from FavoriteItem item" +
+                " where item.group.id = :groupId", FavoriteItem.class)
+                .setParameter("groupId", groupId)
+                .getResultList();
+    }
 }

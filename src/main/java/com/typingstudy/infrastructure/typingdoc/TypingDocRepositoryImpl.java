@@ -1,18 +1,20 @@
 package com.typingstudy.infrastructure.typingdoc;
 
+import com.typingstudy.common.exception.EntityNotFoundException;
 import com.typingstudy.domain.typingdoc.TypingDoc;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityNotFoundException;
 import javax.persistence.Id;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Repository
 @RequiredArgsConstructor
 public class TypingDocRepositoryImpl implements TypingDocRepository {
@@ -43,13 +45,18 @@ public class TypingDocRepositoryImpl implements TypingDocRepository {
     public List<TypingDoc> findAllByTokenList(List<String> tokenList) {
         return em.createQuery("select d from TypingDoc d " +
                         "where d.docToken in (:tokens)", TypingDoc.class)
-                .setParameter("tokens",
-                        tokenList.stream().collect(Collectors.joining(", ")))
+                .setParameter("tokens", tokenList)
                 .getResultList();
     }
 
     @Override
     public TypingDoc findByToken(String token) {
-        return docRepository.findByDocToken(token).orElseThrow(() -> new EntityNotFoundException("문서를 찾을 수 없습니다"));
+        return docRepository.findByDocToken(token)
+                .orElseThrow(() -> new EntityNotFoundException("문서를 찾을 수 없습니다"));
+    }
+
+    @Override
+    public TypingDoc save(TypingDoc doc) {
+        return docRepository.save(doc);
     }
 }

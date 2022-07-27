@@ -12,4 +12,6 @@ public interface TypingDocRepository {
     List<TypingDoc> findAllByTokenList(List<String> tokenList);
 
     TypingDoc findByToken(String token);
+
+    TypingDoc save(TypingDoc doc);
 }

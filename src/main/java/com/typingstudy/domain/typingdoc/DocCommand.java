@@ -32,6 +32,7 @@ public class DocCommand {
 
     // userId는 인터페이스 계층에서 주입하므로 유저 검증에 사용할 수 있다.
     @Data
+    @Builder
     public static class EditCommentRequest {
         private Long commentId;
         private Long userId;
@@ -40,6 +41,7 @@ public class DocCommand {
 
     // userId는 인터페이스 계층에서 주입하므로 유저 검증에 사용할 수 있다.
     @Data
+    @Builder
     public static class RemoveCommentRequest {
         private Long commentId;
         private Long userId;

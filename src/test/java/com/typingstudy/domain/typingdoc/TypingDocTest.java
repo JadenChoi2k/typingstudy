@@ -2,11 +2,13 @@ package com.typingstudy.domain.typingdoc;
 
 import com.typingstudy.domain.typingdoc.comment.DocComment;
 import com.typingstudy.domain.typingdoc.history.DocReviewHistory;
+import com.typingstudy.domain.typingdoc.object.DocObject;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -163,5 +165,25 @@ class TypingDocTest {
         assertEquals(comment, docComment.getContent());
         assertEquals(typingDoc, docComment.getDoc());
         assertEquals(userId, docComment.getUserId());
+    }
+
+    @Test
+    @DisplayName("문서 오브젝트 생성")
+    void create_object() {
+        // given
+        String content = "C".repeat(4000);
+        Long userId = 1L;
+        TypingDoc typingDoc = TypingDoc.builder()
+                .authorId(userId)
+                .access(TypingDoc.Access.PROTECTED)
+                .title("typing_doc")
+                .content(content)
+                .build();
+        // when
+        byte[] data = "my data".getBytes();
+        DocObject docObject = typingDoc.createObject("file.obj", data);
+        // then
+        assertEquals(docObject.getDoc(), typingDoc);
+        assertEquals(docObject.getData(), data);
     }
 }

@@ -3,6 +3,8 @@ package com.typingstudy.domain.typingdoc.comment;
 import lombok.Builder;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 public class DocCommentInfo {
 
     @Data
@@ -12,6 +14,7 @@ public class DocCommentInfo {
         private String docToken;
         private String content;
         private Long userId;
+        private LocalDateTime editedAt;
 
         public static Main of(DocComment comment) {
             return of(comment, comment.getDoc().getDocToken());
@@ -23,6 +26,7 @@ public class DocCommentInfo {
                     .docToken(docToken)
                     .content(comment.getContent())
                     .userId(comment.getUserId())
+                    .editedAt(comment.getEditedAt())
                     .build();
         }
     }

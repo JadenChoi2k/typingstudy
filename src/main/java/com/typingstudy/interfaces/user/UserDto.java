@@ -41,7 +41,7 @@ public class UserDto {
     @Data
     public static class FavoriteItemDto {
         private Long itemId;
-        private Long docId;
+        private String docToken;
         private Long authorId;
         private String title;
         private String access;

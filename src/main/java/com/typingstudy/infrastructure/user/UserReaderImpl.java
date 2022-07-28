@@ -1,5 +1,6 @@
 package com.typingstudy.infrastructure.user;
 
+import com.typingstudy.common.exception.EntityNotFoundException;
 import com.typingstudy.domain.typingdoc.TypingDoc;
 import com.typingstudy.domain.user.User;
 import com.typingstudy.domain.user.UserReader;
@@ -11,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
-import javax.persistence.EntityNotFoundException;
 import java.util.List;
 
 @Slf4j

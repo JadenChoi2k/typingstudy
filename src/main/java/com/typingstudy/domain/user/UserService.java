@@ -9,7 +9,9 @@ public interface UserService {
 
     UserInfo join(UserCommand.DomainUserRegisterRequest domainUserRegisterRequest);
 
-    UserInfo join(UserCommand.SocialUserRegisterRequest socialUserRegisterRequest);
+    // SpringBoot Security 계층에서 처리하므로 더이상 쓰이지 않는다.
+//    @Deprecated
+//    UserInfo join(UserCommand.SocialUserRegisterRequest socialUserRegisterRequest);
 
     UserInfo retrieve(Long userId);
 

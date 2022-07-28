@@ -26,6 +26,8 @@ public class UserApiController {
     private final UserFacade userFacade;
     private final UserDtoMapper userDtoMapper;
 
+    // 도메인 유저의 가입 경로.
+    // 소셜 유저는 oauth 패키지에서 자동 가입
     @PostMapping("/join")
     public CommonResponse join(@RequestBody UserDto.JoinRequest request) {
         UserCommand.DomainUserRegisterRequest registerRequest = userDtoMapper.of(request);

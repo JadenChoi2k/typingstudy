@@ -13,6 +13,7 @@ public class FavoriteGroupInfo {
     public static class Main {
         private Long groupId;
         private String groupName;
+        private Long userId;
         private List<ItemInfo> itemList;
     }
 
@@ -20,16 +21,19 @@ public class FavoriteGroupInfo {
     public static class GroupInfo {
         private Long groupId;
         private String groupName;
+        private Long userId;
 
         public GroupInfo(FavoriteGroup favoriteGroup) {
             this.groupId = favoriteGroup.getId();
             this.groupName = favoriteGroup.getGroupName();
+            this.userId = favoriteGroup.getUser().getId();
         }
     }
 
     @Data
     public static class ItemInfo {
         private Long itemId;
+        private Long groupId;
         private String docToken;
         private Long authorId;
         private String title;
@@ -39,6 +43,7 @@ public class FavoriteGroupInfo {
         private LocalDateTime createDate;
 
         public ItemInfo(FavoriteItem item) {
+            this.groupId = item.getGroup().getId();
             this.itemId = item.getId();
             this.docToken = item.getDocToken();
         }

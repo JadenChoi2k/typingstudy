@@ -17,16 +17,16 @@ public class FavoriteReaderImpl implements FavoriteReader {
 
     @Override
     public FavoriteGroup findGroupById(Long groupId) {
-        return null;
+        return favoriteRepository.findGroupById(groupId);
     }
 
     @Override
     public List<FavoriteGroup> findAllGroups(Long userId) {
-        return null;
+        return favoriteRepository.findAllGroups(userId);
     }
 
     @Override
     public List<FavoriteItem> findAllItems(Long groupId) {
-        return null;
+        return favoriteRepository.findAllItems(groupId);
     }
 }

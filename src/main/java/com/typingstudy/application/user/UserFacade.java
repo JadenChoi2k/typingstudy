@@ -26,9 +26,9 @@ public class UserFacade {
         return userService.join(request);
     }
 
-    public UserInfo join(SocialUserRegisterRequest request) {
-        return userService.join(request);
-    }
+//    public UserInfo join(SocialUserRegisterRequest request) {
+//        return userService.join(request);
+//    }
 
     public UserInfo retrieve(Long userId) {
         return userService.retrieve(userId);

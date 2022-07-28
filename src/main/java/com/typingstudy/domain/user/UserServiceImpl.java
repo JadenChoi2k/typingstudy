@@ -1,6 +1,7 @@
 package com.typingstudy.domain.user;
 
 import com.typingstudy.common.exception.EntityNotFoundException;
+import com.typingstudy.common.exception.InvalidAccessException;
 import com.typingstudy.domain.typingdoc.TypingDoc;
 import com.typingstudy.domain.typingdoc.TypingDocInfo;
 import com.typingstudy.domain.typingdoc.TypingDocReader;
@@ -32,33 +33,37 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean login(LoginRequest request) {
-        log.info("login tried - email: {}, password: {}", request.getEmail(), request.getPassword());
-        return userReader.findByEmail(request.getEmail()).getPassword().equals(request.getPassword());
+        log.info("login tried - email: {}, password: xxxx", request.getEmail());
+        return passwordEncoder.matches(
+                request.getPassword(),
+                userReader.findByEmail(request.getEmail()).getPassword()
+        );
     }
 
     @Override
     public UserInfo join(DomainUserRegisterRequest request) {
+        request.setPassword(passwordEncoder.encode(request.getPassword()));
         log.info("domain join request: {}", request);
         User user = User.createDomainUser(
                 request.getEmail(),
-                passwordEncoder.encode(request.getPassword()),
+                request.getPassword(),
                 request.getUsername(),
                 request.getProfileUrl()
         );
         return UserInfo.of(userStore.store(user));
     }
 
-    @Override
-    public UserInfo join(SocialUserRegisterRequest request) {
-        log.info("social join request: {}", request);
-        User user = User.createSocialLoginUser(
-                request.getPlatform(),
-                request.getEmail(),
-                request.getUsername(),
-                request.getProfileUrl()
-        );
-        return UserInfo.of(userStore.store(user));
-    }
+//    @Override
+//    public UserInfo join(SocialUserRegisterRequest request) {
+//        log.info("social join request: {}", request);
+//        User user = User.createSocialLoginUser(
+//                request.getPlatform(),
+//                request.getEmail(),
+//                request.getUsername(),
+//                request.getProfileUrl()
+//        );
+//        return UserInfo.of(userStore.store(user));
+//    }
 
     @Override
     @Transactional(readOnly = true)
@@ -76,8 +81,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public FavoriteGroupInfo.ItemInfo addFavoriteItem(AddFavoriteItemRequest request) {
+        log.info("request.getGroupId()={}", request.getGroupId());
         FavoriteGroup group = favoriteReader.findGroupById(request.getGroupId());
+        if (group == null) throw new EntityNotFoundException("즐겨찾기 그룹을 찾을 수 없습니다.");
+        if (!request.getUserId().equals(group.getUser().getId())) throw new InvalidAccessException("잘못된 접근입니다.");
         FavoriteItem item = group.createItem(request.getDocToken());
+        // 다른 도메인 계층 호출.
         TypingDoc doc = docReader.findByToken(item.getDocToken());
         if (doc == null) throw new EntityNotFoundException("문서를 찾을 수 없습니다.");
         item = favoriteStore.store(item);

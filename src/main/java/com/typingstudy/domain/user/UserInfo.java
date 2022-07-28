@@ -19,4 +19,8 @@ public class UserInfo {
                 .profileUrl(user.getProfileUrl())
                 .build();
     }
+
+    public Long getIdLong() {
+        return Long.parseLong(this.id);
+    }
 }

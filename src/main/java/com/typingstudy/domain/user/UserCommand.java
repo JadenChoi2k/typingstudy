@@ -36,9 +36,11 @@ public class UserCommand {
         private Long userId;
     }
 
+    // userId는 security에서 주입
     @Data
     @Builder
     public static class AddFavoriteItemRequest {
+        private Long userId;
         private Long groupId;
         private String docToken;
     }

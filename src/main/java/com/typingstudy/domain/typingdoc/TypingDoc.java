@@ -34,6 +34,7 @@ public class TypingDoc extends BaseEntity {
     @Column(length = 50, nullable = false)
     private String title;
 
+    // 가장 처음 작성한 내용
     @Column(length = 4095, nullable = false)
     private String content;
 
@@ -72,6 +73,16 @@ public class TypingDoc extends BaseEntity {
     public DocReviewHistory review() {
         this.lastStudyDate = LocalDateTime.now();
         return new DocReviewHistory(this);
+    }
+
+    public boolean isEdited() {
+        return this.getEditedAt().isAfter(this.getCreatedAt());
+    }
+
+    public void edit(String title, String content, Access access) {
+        if (title != null) this.title = title;
+        if (content != null) this.content = content;
+        if (access != null) this.access = access;
     }
 
     // 이 문서의 코멘트를 생성한다.

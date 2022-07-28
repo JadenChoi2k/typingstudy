@@ -81,6 +81,44 @@ public class TypingDocServiceTest {
     }
 
     @Test
+    @DisplayName("문서 수정")
+    void edit_doc() {
+        // given
+        String title = "edit title";
+        String content = "edit content";
+        TypingDoc.Access access = TypingDoc.Access.PRIVATE;
+        TypingDocInfo.Main docInfo = createDoc();
+        // when
+        TypingDocInfo.Main editDocInfo = docService.editDoc(DocCommand.EditDocRequest.builder()
+                .docToken(docInfo.getDocToken())
+                .title(title)
+                .content(content)
+                .access(access)
+                .authorId(docInfo.getAuthorId())
+                .build());
+        // then
+        assertThat(editDocInfo.getDocToken()).isEqualTo(docInfo.getDocToken());
+        assertThat(editDocInfo.getTitle()).isEqualTo(title);
+        assertThat(editDocInfo.getContent()).isEqualTo(content);
+        assertThat(editDocInfo.getAccess()).isEqualTo(access);
+    }
+
+    @Test
+    @DisplayName("문서 삭제")
+    void remove_doc() {
+        // given
+        TypingDocInfo.Main docInfo = createDoc();
+        // when
+        docService.removeDoc(DocCommand.RemoveDocRequest.builder()
+                .docToken(docInfo.getDocToken())
+                .authorId(docInfo.getAuthorId())
+                .build());
+        // then
+        assertThatThrownBy(() -> docService.retrieveDoc(docInfo.getDocToken()))
+                .isInstanceOf(EntityNotFoundException.class);
+    }
+
+    @Test
     @DisplayName("문서 페이징")
     void retrieve_docs() {
         // given
@@ -182,7 +220,7 @@ public class TypingDocServiceTest {
                 .docToken(item.getDocToken())
                 .build()));
         List<List<DocReviewHistoryInfo>> historyInfoList = pageItems.stream()
-                .map(item -> docService.reviewHistoryByToken(item.getDocToken())).toList();
+                .map(item -> docService.reviewHistoryByToken(item.getDocToken(), 0)).toList();
         // then
         assertThat(historyInfoList).hasSize(pageItems.size());
         assertThat(historyInfoList).allMatch(list -> list.size() == 1);
@@ -205,7 +243,7 @@ public class TypingDocServiceTest {
                     .build()
             );
         // when
-        List<DocReviewHistoryInfo> reviewHistory = docService.reviewHistoryByToken(docToken);
+        List<DocReviewHistoryInfo> reviewHistory = docService.reviewHistoryByToken(docToken, 0);
         long reviewCount = docService.reviewCountByToken(docToken);
         // then
         assertThat(reviewCount).isEqualTo(count);
@@ -224,7 +262,7 @@ public class TypingDocServiceTest {
                 .docToken(item.getDocToken())
                 .build()));
         List<List<DocReviewHistoryInfo>> historyInfoList = pageItems.stream()
-                .map(item -> docService.reviewHistoryByToken(item.getDocToken())).toList();
+                .map(item -> docService.reviewHistoryByToken(item.getDocToken(), 0)).toList();
         // when
         List<DocReviewHistoryInfo> history = docService.reviewHistoryByUserId(userId);
         long reviewCount = docService.reviewCountByUserId(userId);

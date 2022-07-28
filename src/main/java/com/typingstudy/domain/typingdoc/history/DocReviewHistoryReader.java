@@ -3,7 +3,7 @@ package com.typingstudy.domain.typingdoc.history;
 import java.util.List;
 
 public interface DocReviewHistoryReader {
-    List<DocReviewHistory> findAllByToken(String token);
+    List<DocReviewHistory> findAllByToken(String token, Integer page);
 
     List<DocReviewHistory> findAllByUserId(Long userId);
 

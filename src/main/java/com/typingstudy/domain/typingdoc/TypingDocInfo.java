@@ -20,6 +20,7 @@ public class TypingDocInfo {
         private List<DocCommentInfo.Main> comments;
         private Integer views;
         private LocalDateTime lastStudyDate;
+        private LocalDateTime editDate;
         private LocalDateTime createDate;
 
         public static Main of(TypingDoc doc) {
@@ -31,6 +32,7 @@ public class TypingDocInfo {
                     .access(doc.getAccess())
                     .views(doc.getViews())
                     .lastStudyDate(doc.getLastStudyDate())
+                    .editDate(doc.getEditedAt())
                     .createDate(doc.getCreatedAt())
                     .build();
         }
@@ -44,6 +46,7 @@ public class TypingDocInfo {
         private TypingDoc.Access access;
         private Integer views;
         private LocalDateTime lastStudyDate;
+        private LocalDateTime editDate;
         private LocalDateTime createDate;
 
         public PageItem(TypingDoc doc) {
@@ -53,6 +56,7 @@ public class TypingDocInfo {
             this.access = doc.getAccess();
             this.views = doc.getViews();
             this.lastStudyDate = doc.getLastStudyDate();
+            this.editDate = doc.getEditedAt();
             this.createDate = doc.getCreatedAt();
         }
     }

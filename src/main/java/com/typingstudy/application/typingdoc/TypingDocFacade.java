@@ -19,51 +19,51 @@ public class TypingDocFacade {
         return docService.retrieveDocs(userId, page, sort, direction);
     }
 
-    List<TypingDocInfo.PageItem> retrieveDocs(List<String> docTokenList) {
+    public List<TypingDocInfo.PageItem> retrieveDocs(List<String> docTokenList) {
         return docService.retrieveDocs(docTokenList);
     }
 
-    TypingDocInfo.Main retrieveDoc(String docToken) {
+    public TypingDocInfo.Main retrieveDoc(String docToken) {
         return docService.retrieveDoc(docToken);
     }
 
-    void reviewDoc(DocCommand.ReviewRequest request) {
+    public void reviewDoc(DocCommand.ReviewRequest request) {
         docService.reviewDoc(request);
     }
 
-    List<DocReviewHistoryInfo> reviewHistoryByToken(String docToken) {
-        return docService.reviewHistoryByToken(docToken);
+    public List<DocReviewHistoryInfo> reviewHistoryByToken(String docToken, Integer page) {
+        return docService.reviewHistoryByToken(docToken, page);
     }
 
-    List<DocReviewHistoryInfo> reviewHistoryByUserId(Long userId) {
+    public List<DocReviewHistoryInfo> reviewHistoryByUserId(Long userId) {
         return docService.reviewHistoryByUserId(userId);
     }
 
-    long reviewCountByToken(String docToken) {
+    public long reviewCountByToken(String docToken) {
         return docService.reviewCountByToken(docToken);
     }
 
-    long reviewCountByUserId(Long userId) {
+    public long reviewCountByUserId(Long userId) {
         return docService.reviewCountByUserId(userId);
     }
 
-    TypingDocInfo.Main createDoc(DocCommand.CreateRequest request) {
+    public TypingDocInfo.Main createDoc(DocCommand.CreateRequest request) {
         return docService.createDoc(request);
     }
 
-    List<DocCommentInfo.Main> retrieveComments(String docToken) {
+    public List<DocCommentInfo.Main> retrieveComments(String docToken) {
         return docService.retrieveComments(docToken);
     }
 
-    DocCommentInfo.Main addComment(DocCommand.AddCommentRequest request) {
+    public DocCommentInfo.Main addComment(DocCommand.AddCommentRequest request) {
         return docService.addComment(request);
     }
 
-    DocCommentInfo.Main editComment(DocCommand.EditCommentRequest request) {
+    public DocCommentInfo.Main editComment(DocCommand.EditCommentRequest request) {
         return docService.editComment(request);
     }
 
-    void removeComment(DocCommand.RemoveCommentRequest request) {
+    public void removeComment(DocCommand.RemoveCommentRequest request) {
         docService.removeComment(request);
     }
 }

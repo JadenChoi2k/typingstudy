@@ -16,10 +16,12 @@ public class DocReviewHistoryReaderImpl implements DocReviewHistoryReader {
     private final EntityManager em;
 
     @Override
-    public List<DocReviewHistory> findAllByToken(String token) {
+    public List<DocReviewHistory> findAllByToken(String token, Integer page) {
         return em.createQuery("select hist from DocReviewHistory hist" +
                         " where hist.doc.docToken = :docToken", DocReviewHistory.class)
                 .setParameter("docToken", token)
+                .setMaxResults(20)
+                .setFirstResult(page * 20)
                 .getResultList();
     }
 

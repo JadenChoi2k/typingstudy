@@ -16,6 +16,23 @@ public class DocCommand {
 
     @Data
     @Builder
+    public static class EditDocRequest {
+        private Long authorId;
+        private String docToken;
+        private String title;
+        private String content;
+        private TypingDoc.Access access;
+    }
+
+    @Data
+    @Builder
+    public static class RemoveDocRequest {
+        private Long authorId;
+        private String docToken;
+    }
+
+    @Data
+    @Builder
     public static class ReviewRequest {
         private Long userId;
         private String docToken;

@@ -1,5 +1,6 @@
 package com.typingstudy.domain.typingdoc;
 
+import com.typingstudy.common.exception.EntityNotFoundException;
 import com.typingstudy.common.exception.InvalidAccessException;
 import com.typingstudy.domain.typingdoc.comment.DocComment;
 import com.typingstudy.domain.typingdoc.comment.DocCommentInfo;
@@ -24,6 +25,45 @@ public class TypingDocServiceImpl implements TypingDocService {
     private final DocReviewHistoryReader historyReader;
     private final TypingDocStore typingDocStore;
     private final DocCommentStore docCommentStore;
+
+    void validateDoc(TypingDoc doc, Long authorId) {
+        if (doc == null) {
+            throw new EntityNotFoundException("문서를 찾을 수 없습니다");
+        }
+        if (!doc.getAuthorId().equals(authorId)) {
+            throw new InvalidAccessException("잘못된 접근입니다");
+        }
+    }
+
+    @Override
+    public TypingDocInfo.Main createDoc(DocCommand.CreateRequest request) {
+        TypingDoc doc = TypingDoc.builder()
+                .authorId(request.getAuthorId())
+                .title(request.getTitle())
+                .content(request.getContent())
+                .access(request.getAccess())
+                .build();
+        return TypingDocInfo.Main.of(typingDocStore.store(doc));
+    }
+
+    @Override
+    public TypingDocInfo.Main editDoc(DocCommand.EditDocRequest request) {
+        TypingDoc doc = typingDocReader.findByToken(request.getDocToken());
+        validateDoc(doc, request.getAuthorId());
+        doc.edit(
+                request.getTitle(),
+                request.getContent(),
+                request.getAccess()
+        );
+        return TypingDocInfo.Main.of(doc);
+    }
+
+    @Override
+    public void removeDoc(DocCommand.RemoveDocRequest request) {
+        TypingDoc doc = typingDocReader.findByToken(request.getDocToken());
+        validateDoc(doc, request.getAuthorId());
+        typingDocStore.remove(doc);
+    }
 
     @Override
     @Transactional(readOnly = true)
@@ -55,16 +95,14 @@ public class TypingDocServiceImpl implements TypingDocService {
     @Override
     public void reviewDoc(DocCommand.ReviewRequest request) {
         TypingDoc doc = typingDocReader.findByToken(request.getDocToken());
-        if (!doc.getAuthorId().equals(request.getUserId())) {
-            throw new InvalidAccessException("잘못된 접근입니다.");
-        }
+        validateDoc(doc, request.getUserId());
         DocReviewHistory review = doc.review();
         typingDocStore.store(review);
     }
 
     @Override
-    public List<DocReviewHistoryInfo> reviewHistoryByToken(String docToken) {
-        return historyReader.findAllByToken(docToken).stream()
+    public List<DocReviewHistoryInfo> reviewHistoryByToken(String docToken, Integer page) {
+        return historyReader.findAllByToken(docToken, page).stream()
                 .map(DocReviewHistoryInfo::of)
                 .collect(Collectors.toList());
     }
@@ -91,17 +129,6 @@ public class TypingDocServiceImpl implements TypingDocService {
         return docCommentReader.findAll(docToken).stream()
                 .map(comment -> DocCommentInfo.Main.of(comment, docToken))
                 .toList();
-    }
-
-    @Override
-    public TypingDocInfo.Main createDoc(DocCommand.CreateRequest request) {
-        TypingDoc doc = TypingDoc.builder()
-                .authorId(request.getAuthorId())
-                .title(request.getTitle())
-                .content(request.getContent())
-                .access(request.getAccess())
-                .build();
-        return TypingDocInfo.Main.of(typingDocStore.store(doc));
     }
 
     @Override

@@ -12,6 +12,7 @@ public enum ErrorCode {
     COMMON_ENTITY_NOT_FOUND("존재하지 않는 엔티티입니다."),
     COMMON_INVALID_ACCESS("잘못된 접근입니다."),
     COMMON_INVALID_TOKEN("유효하지 않은 토큰값입니다."),
+    COMMON_ALREADY_EXIST("이미 존재하는 객체입니다."),
     // (TYPING) DOC
     DOC_INVALID_ACCESS("보호된 문서입니다.");
 

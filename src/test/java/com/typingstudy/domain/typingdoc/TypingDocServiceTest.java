@@ -4,6 +4,7 @@ import com.typingstudy.common.exception.EntityNotFoundException;
 import com.typingstudy.common.exception.InvalidAccessException;
 import com.typingstudy.domain.typingdoc.comment.DocCommentInfo;
 import com.typingstudy.domain.typingdoc.history.DocReviewHistoryInfo;
+import com.typingstudy.domain.typingdoc.object.DocObjectInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -116,6 +117,92 @@ public class TypingDocServiceTest {
         // then
         assertThatThrownBy(() -> docService.retrieveDoc(docInfo.getDocToken()))
                 .isInstanceOf(EntityNotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("문서 오브젝트 추가, 조회")
+    void add_doc_object() {
+        // given
+        String fileName = "test.txt";
+        byte[] data = "hello world".getBytes();
+        TypingDocInfo.Main docInfo = createDoc();
+        // when
+        docService.addDocObject(DocCommand.AddObjectRequest.builder()
+                .docToken(docInfo.getDocToken())
+                .authorId(docInfo.getAuthorId())
+                .fileName(fileName)
+                .data(data)
+                .build());
+        // then
+        DocObjectInfo docObjectInfo = docService.retrieveDocObject(DocCommand.RetrieveDocObjectRequest.builder()
+                .docToken(docInfo.getDocToken())
+                .fileName(fileName)
+                .build());
+        log.info("retrieve data={}", docObjectInfo.getData());
+        assertThat(docObjectInfo.getDocToken()).isEqualTo(docInfo.getDocToken());
+        assertThat(docObjectInfo.getFileName()).isEqualTo(fileName);
+        assertThat(docObjectInfo.getData()).isEqualTo(data);
+    }
+
+    @Test
+    @DisplayName("문서 오브젝트 추가 실패 - authorId 불일치")
+    void add_doc_object_fail1() {
+        // given
+        String fileName = "test.txt";
+        byte[] data = "hello world".getBytes();
+        TypingDocInfo.Main docInfo = createDoc();
+        // when, then
+        assertThatThrownBy(() -> docService.addDocObject(DocCommand.AddObjectRequest.builder()
+                .docToken(docInfo.getDocToken())
+                .authorId(docInfo.getAuthorId() + 123L)
+                .fileName(fileName)
+                .data(data)
+                .build())
+        ).isInstanceOf(InvalidAccessException.class);
+    }
+
+    @Test
+    @DisplayName("문서 오브젝트 추가 실패 - 존재하지 않는 docToken")
+    void add_doc_object_fail2() {
+        // given
+        String fileName = "test.txt";
+        byte[] data = "hello world".getBytes();
+        TypingDocInfo.Main docInfo = createDoc();
+        // when, then
+        assertThatThrownBy(() -> docService.addDocObject(DocCommand.AddObjectRequest.builder()
+                .docToken(docInfo.getDocToken() + "notfound")
+                .authorId(docInfo.getAuthorId())
+                .fileName(fileName)
+                .data(data)
+                .build())
+        ).isInstanceOf(EntityNotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("문서 오브젝트 삭제")
+    void remove_doc_object() {
+        // given
+        String fileName = "test.txt";
+        byte[] data = "hello world".getBytes();
+        TypingDocInfo.Main docInfo = createDoc();
+        docService.addDocObject(DocCommand.AddObjectRequest.builder()
+                .docToken(docInfo.getDocToken())
+                .authorId(docInfo.getAuthorId())
+                .fileName(fileName)
+                .data(data)
+                .build());
+        // when
+        docService.removeDocObject(DocCommand.RemoveDocRequest.builder()
+                .authorId(docInfo.getAuthorId())
+                .docToken(docInfo.getDocToken())
+                .fileName(fileName)
+                .build());
+        // then
+        assertThatThrownBy(() -> docService.retrieveDocObject(DocCommand.RetrieveDocObjectRequest.builder()
+                .docToken(docInfo.getDocToken())
+                .fileName(fileName)
+                .build())
+        ).isInstanceOf(EntityNotFoundException.class);
     }
 
     @Test

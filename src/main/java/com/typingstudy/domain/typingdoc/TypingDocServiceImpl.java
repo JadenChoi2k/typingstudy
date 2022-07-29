@@ -84,7 +84,7 @@ public class TypingDocServiceImpl implements TypingDocService {
     public void removeDocObject(DocCommand.RemoveDocRequest request) {
         TypingDoc doc = typingDocReader.findByToken(request.getDocToken());
         validateDoc(doc, request.getAuthorId());
-
+        typingDocStore.removeDocObject(request.getDocToken(), request.getFileName());
     }
 
     @Override

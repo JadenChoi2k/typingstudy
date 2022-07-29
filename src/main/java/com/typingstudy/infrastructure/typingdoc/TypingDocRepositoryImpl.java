@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Id;
+import javax.persistence.NoResultException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -52,11 +53,15 @@ public class TypingDocRepositoryImpl implements TypingDocRepository {
 
     @Override
     public DocObject findDocObject(String docToken, String fileName) {
-        return em.createQuery("select o from DocObject o" +
-                " where o.doc.docToken = :docToken and o.fileName = :fileName", DocObject.class)
-                .setParameter("docToken", docToken)
-                .setParameter("fileName", fileName)
-                .getSingleResult();
+        try {
+            return em.createQuery("select o from DocObject o" +
+                            " where o.doc.docToken = :docToken and o.fileName = :fileName", DocObject.class)
+                    .setParameter("docToken", docToken)
+                    .setParameter("fileName", fileName)
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            throw new EntityNotFoundException("객체를 찾을 수 없습니다");
+        }
     }
 
     @Override

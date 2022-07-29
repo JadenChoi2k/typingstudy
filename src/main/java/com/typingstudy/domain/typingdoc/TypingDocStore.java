@@ -12,5 +12,5 @@ public interface TypingDocStore {
 
     void remove(TypingDoc doc);
 
-    void remove(DocObject docObject);
+    void removeDocObject(String docToken, String fileName);
 }

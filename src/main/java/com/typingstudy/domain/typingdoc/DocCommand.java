@@ -76,7 +76,7 @@ public class DocCommand {
 
     @Data
     @Builder
-    public class RetrieveDocObjectRequest {
+    public static class RetrieveDocObjectRequest {
         private String docToken;
         private String fileName;
     }

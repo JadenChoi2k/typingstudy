@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.nio.file.Files;
 
 /**
  * image, 동영상 등 문서에 넣는 오브젝트 파일

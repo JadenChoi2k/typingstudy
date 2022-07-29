@@ -13,6 +13,13 @@ public class CommonResponse<T> {
     private String message;
     private String errorCode;
 
+    public static CommonResponse ok() {
+        return CommonResponse.builder()
+                .result(Result.SUCCESS)
+                .message("ok")
+                .build();
+    }
+
     public static <T> CommonResponse<T> success(T data, String message) {
         return (CommonResponse<T>) CommonResponse.builder()
                 .result(Result.SUCCESS)

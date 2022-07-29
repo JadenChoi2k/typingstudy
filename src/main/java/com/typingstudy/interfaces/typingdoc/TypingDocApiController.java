@@ -124,7 +124,7 @@ public class TypingDocApiController {
     }
 
     @DeleteMapping("/{docToken}")
-    public CommonResponse deleteDoc(@PathVariable String docToken) {
+    public CommonResponse removeDoc(@PathVariable String docToken) {
         Long userId = SecurityUtils.getUserId();
         docFacade.removeDoc(DocCommand.RemoveDocRequest.builder()
                 .docToken(docToken)

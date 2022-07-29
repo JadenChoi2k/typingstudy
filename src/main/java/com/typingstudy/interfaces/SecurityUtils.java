@@ -10,7 +10,7 @@ public class SecurityUtils {
                 (PrincipalDetails) SecurityContextHolder.getContext()
                         .getAuthentication().getPrincipal();
         if (principal == null) {
-            throw new InvalidAccessException();
+            throw new InvalidAccessException("unauthorized");
         }
         return principal.getUser().getId();
     }

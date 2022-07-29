@@ -23,9 +23,10 @@ public class User extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private SocialPlatform platform;
 
-    @Column(unique = true, length = 30)
+    @Column(unique = true, length = 50)
     private String email;
 
+    @Column(length = 30)
     private String password;
 
     @Column(length = 20, nullable = false)

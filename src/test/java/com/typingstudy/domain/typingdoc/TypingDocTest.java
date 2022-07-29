@@ -86,7 +86,7 @@ class TypingDocTest {
 
     @Test
     @DisplayName("복습")
-    void review() {
+    void review() throws InterruptedException {
         // given
         String content = "C".repeat(4000);
         TypingDoc typingDoc = TypingDoc.builder()
@@ -98,6 +98,7 @@ class TypingDocTest {
         // when
         DocReviewHistory reviewHistory1 = typingDoc.review();
         LocalDateTime lastStudyDate1 = typingDoc.getLastStudyDate();
+        Thread.sleep(1000);
         DocReviewHistory reviewHistory2 = typingDoc.review();
         // then
         assertEquals(reviewHistory1.getDoc(), typingDoc);

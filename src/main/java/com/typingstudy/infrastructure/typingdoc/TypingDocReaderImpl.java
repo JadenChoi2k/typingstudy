@@ -2,6 +2,7 @@ package com.typingstudy.infrastructure.typingdoc;
 
 import com.typingstudy.domain.typingdoc.TypingDoc;
 import com.typingstudy.domain.typingdoc.TypingDocReader;
+import com.typingstudy.domain.typingdoc.object.DocObject;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -30,5 +31,10 @@ public class TypingDocReaderImpl implements TypingDocReader {
     @Override
     public TypingDoc findByToken(String token) {
         return docRepository.findByToken(token);
+    }
+
+    @Override
+    public DocObject findDocObject(String docToken, String fileName) {
+        return docRepository.findDocObject(docToken, fileName);
     }
 }

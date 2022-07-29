@@ -1,5 +1,7 @@
 package com.typingstudy.domain.typingdoc;
 
+import com.typingstudy.domain.typingdoc.object.DocObject;
+
 import java.util.List;
 
 public interface TypingDocReader {
@@ -18,4 +20,6 @@ public interface TypingDocReader {
     List<TypingDoc> findAllByTokenList(List<String> tokenList);
 
     TypingDoc findByToken(String token);
+
+    DocObject findDocObject(String docToken, String fileName);
 }

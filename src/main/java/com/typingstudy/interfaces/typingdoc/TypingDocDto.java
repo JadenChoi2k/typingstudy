@@ -5,6 +5,7 @@ import com.typingstudy.domain.typingdoc.comment.DocCommentInfo;
 import lombok.Builder;
 import lombok.Data;
 
+import javax.validation.constraints.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -55,19 +56,40 @@ public class TypingDocDto {
         private LocalDateTime editedAt;
     }
 
-    /* 입력 데이터 클래스 */
+    /* 입력(request) 데이터 클래스 */
     @Data
     @Builder
     public static class CreateDoc {
         private Long authorId;
+        @Size(min = 1, max = 50)
         private String title;
+        @Size(min = 1, max = 4095)
         private String content;
+        @NotNull
         private TypingDoc.Access access;
     }
 
     @Data
     @Builder
     public static class EditDoc {
+        private Long authorId;
+        @NotNull
+        private String docToken;
+        @Max(50)
+        private String title;
+        @Max(4095)
+        private String content;
+        private TypingDoc.Access access;
+    }
 
+    @Data
+    @Builder
+    public static class AddObject {
+        private Long authorId;
+        private String docToken;
+        @NotEmpty
+        private String fileName;
+        @NotNull
+        private byte[] data;
     }
 }

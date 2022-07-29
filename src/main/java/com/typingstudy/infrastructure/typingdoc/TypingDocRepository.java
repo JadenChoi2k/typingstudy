@@ -1,6 +1,7 @@
 package com.typingstudy.infrastructure.typingdoc;
 
 import com.typingstudy.domain.typingdoc.TypingDoc;
+import com.typingstudy.domain.typingdoc.object.DocObject;
 
 import java.util.List;
 
@@ -10,6 +11,8 @@ public interface TypingDocRepository {
     List<TypingDoc> findAllByIdList(List<Long> idList);
 
     List<TypingDoc> findAllByTokenList(List<String> tokenList);
+
+    DocObject findDocObject(String docToken, String fileName);
 
     TypingDoc findByToken(String token);
 

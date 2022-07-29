@@ -2,6 +2,7 @@ package com.typingstudy.infrastructure.typingdoc;
 
 import com.typingstudy.common.exception.EntityNotFoundException;
 import com.typingstudy.domain.typingdoc.TypingDoc;
+import com.typingstudy.domain.typingdoc.object.DocObject;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -47,6 +48,15 @@ public class TypingDocRepositoryImpl implements TypingDocRepository {
                         "where d.docToken in (:tokens)", TypingDoc.class)
                 .setParameter("tokens", tokenList)
                 .getResultList();
+    }
+
+    @Override
+    public DocObject findDocObject(String docToken, String fileName) {
+        return em.createQuery("select o from DocObject o" +
+                " where o.doc.docToken = :docToken and o.fileName = :fileName", DocObject.class)
+                .setParameter("docToken", docToken)
+                .setParameter("fileName", fileName)
+                .getSingleResult();
     }
 
     @Override

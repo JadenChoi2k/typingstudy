@@ -26,9 +26,19 @@ public class DocCommand {
 
     @Data
     @Builder
+    public static class AddObjectRequest {
+        private Long authorId;
+        private String docToken;
+        private String fileName;
+        private byte[] data;
+    }
+
+    @Data
+    @Builder
     public static class RemoveDocRequest {
         private Long authorId;
         private String docToken;
+        private String fileName;
     }
 
     @Data
@@ -62,5 +72,12 @@ public class DocCommand {
     public static class RemoveCommentRequest {
         private Long commentId;
         private Long userId;
+    }
+
+    @Data
+    @Builder
+    public class RetrieveDocObjectRequest {
+        private String docToken;
+        private String fileName;
     }
 }

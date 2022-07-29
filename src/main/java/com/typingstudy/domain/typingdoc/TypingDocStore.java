@@ -11,4 +11,6 @@ public interface TypingDocStore {
     DocObject store(DocObject docObject);
 
     void remove(TypingDoc doc);
+
+    void remove(DocObject docObject);
 }

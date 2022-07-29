@@ -1,5 +1,6 @@
 package com.typingstudy.infrastructure.typingdoc;
 
+import com.typingstudy.common.exception.AlreadyExistException;
 import com.typingstudy.domain.typingdoc.TypingDoc;
 import com.typingstudy.domain.typingdoc.TypingDocStore;
 import com.typingstudy.domain.typingdoc.history.DocReviewHistory;
@@ -30,6 +31,16 @@ public class TypingDocStoreImpl implements TypingDocStore {
 
     @Override
     public DocObject store(DocObject docObject) {
+        em.createQuery("select o from DocObject o" +
+                        " where o.doc.id = :docId and o.fileName = :fileName", DocObject.class)
+                .setParameter("docId", docObject.getDoc().getId())
+                .setParameter("fileName", docObject.getFileName())
+                .setMaxResults(1)
+                .getResultList().stream()
+                .findFirst()
+                .ifPresent(o -> {
+                    throw new AlreadyExistException("이미 존재하는 파일 이름입니다");
+                });
         em.persist(docObject);
         return docObject;
     }
@@ -37,5 +48,10 @@ public class TypingDocStoreImpl implements TypingDocStore {
     @Override
     public void remove(TypingDoc doc) {
         em.remove(doc);
+    }
+
+    @Override
+    public void remove(DocObject docObject) {
+        em.remove(docObject);
     }
 }

@@ -23,4 +23,8 @@ public interface TypingDocDtoMapper {
     TypingDocDto.Comment of(DocCommentInfo.Main commentInfo);
 
     DocCommand.CreateRequest of(TypingDocDto.CreateDoc createDocDto);
+
+    DocCommand.EditDocRequest of(TypingDocDto.EditDoc editDocDto);
+
+    DocCommand.AddObjectRequest of(TypingDocDto.AddObject addObjectDto);
 }

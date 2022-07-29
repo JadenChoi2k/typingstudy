@@ -9,6 +9,7 @@ import com.typingstudy.domain.typingdoc.comment.DocCommentStore;
 import com.typingstudy.domain.typingdoc.history.DocReviewHistory;
 import com.typingstudy.domain.typingdoc.history.DocReviewHistoryInfo;
 import com.typingstudy.domain.typingdoc.history.DocReviewHistoryReader;
+import com.typingstudy.domain.typingdoc.object.DocObjectInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -63,6 +64,27 @@ public class TypingDocServiceImpl implements TypingDocService {
         TypingDoc doc = typingDocReader.findByToken(request.getDocToken());
         validateDoc(doc, request.getAuthorId());
         typingDocStore.remove(doc);
+    }
+
+    @Override
+    public void addDocObject(DocCommand.AddObjectRequest request) {
+        TypingDoc doc = typingDocReader.findByToken(request.getDocToken());
+        validateDoc(doc, request.getAuthorId());
+        typingDocStore.store(doc.createObject(request.getFileName(), request.getData()));
+    }
+
+    @Override
+    public DocObjectInfo retrieveDocObject(DocCommand.RetrieveDocObjectRequest request) {
+        return DocObjectInfo.of(
+                typingDocReader.findDocObject(request.getDocToken(), request.getFileName())
+        );
+    }
+
+    @Override
+    public void removeDocObject(DocCommand.RemoveDocRequest request) {
+        TypingDoc doc = typingDocReader.findByToken(request.getDocToken());
+        validateDoc(doc, request.getAuthorId());
+
     }
 
     @Override

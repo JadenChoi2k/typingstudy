@@ -1,10 +1,12 @@
 package com.typingstudy.application.typingdoc;
 
 import com.typingstudy.domain.typingdoc.DocCommand;
+import com.typingstudy.domain.typingdoc.TypingDoc;
 import com.typingstudy.domain.typingdoc.TypingDocInfo;
 import com.typingstudy.domain.typingdoc.TypingDocService;
 import com.typingstudy.domain.typingdoc.comment.DocCommentInfo;
 import com.typingstudy.domain.typingdoc.history.DocReviewHistoryInfo;
+import com.typingstudy.domain.typingdoc.object.DocObjectInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +16,30 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TypingDocFacade {
     private final TypingDocService docService;
+
+    public TypingDocInfo.Main createDoc(DocCommand.CreateRequest request) {
+        return docService.createDoc(request);
+    }
+
+    public TypingDocInfo.Main editDoc(DocCommand.EditDocRequest request) {
+        return docService.editDoc(request);
+    }
+
+    public void removeDoc(DocCommand.RemoveDocRequest request) {
+        docService.removeDoc(request);
+    }
+
+    public void addDocObject(DocCommand.AddObjectRequest request) {
+        docService.addDocObject(request);
+    }
+
+    public DocObjectInfo retrieveDocObject(DocCommand.RetrieveDocObjectRequest request) {
+        return docService.retrieveDocObject(request);
+    }
+
+    public void removeDocObject(DocCommand.RemoveDocRequest request) {
+        docService.removeDocObject(request);
+    }
 
     public List<TypingDocInfo.PageItem> retrieveDocs(Long userId, int page, String sort, String direction) {
         return docService.retrieveDocs(userId, page, sort, direction);
@@ -45,10 +71,6 @@ public class TypingDocFacade {
 
     public long reviewCountByUserId(Long userId) {
         return docService.reviewCountByUserId(userId);
-    }
-
-    public TypingDocInfo.Main createDoc(DocCommand.CreateRequest request) {
-        return docService.createDoc(request);
     }
 
     public List<DocCommentInfo.Main> retrieveComments(String docToken) {

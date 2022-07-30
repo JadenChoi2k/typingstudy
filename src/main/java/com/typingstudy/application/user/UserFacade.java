@@ -1,6 +1,7 @@
 package com.typingstudy.application.user;
 
 import com.typingstudy.domain.typingdoc.TypingDocInfo;
+import com.typingstudy.domain.user.UserCommand;
 import com.typingstudy.domain.user.UserInfo;
 import com.typingstudy.domain.user.UserService;
 import com.typingstudy.domain.user.favorite.FavoriteGroupInfo;
@@ -34,11 +35,31 @@ public class UserFacade {
         return userService.retrieve(userId);
     }
 
+    public FavoriteGroupInfo.GroupInfo createFavoriteGroup(UserCommand.CreateFavoriteGroupRequest request) {
+        return userService.createFavoriteGroup(request);
+    }
+
     public List<FavoriteGroupInfo.GroupInfo> retrieveFavoriteGroups(Long userId, int page) {
         return userService.retrieveFavoriteGroups(userId, page);
     }
 
     public List<FavoriteGroupInfo.ItemInfo> retrieveFavoriteGroup(Long userId, Long groupId, int page) {
         return userService.retrieveFavoriteGroup(userId, groupId, page);
+    }
+
+    public void removeFavoriteGroup(Long userId, Long groupId) {
+        userService.removeFavoriteGroup(userId, groupId);
+    }
+
+    public FavoriteGroupInfo.GroupInfo editFavoriteGroup(UserCommand.EditFavoriteGroupRequest request) {
+        return userService.editFavoriteGroup(request);
+    }
+
+    public FavoriteGroupInfo.ItemInfo addFavoriteItem(UserCommand.AddFavoriteItemRequest request) {
+        return userService.addFavoriteItem(request);
+    }
+
+    public void removeFavoriteItem(RemoveFavoriteItemRequest request) {
+        userService.removeFavoriteItem(request);
     }
 }

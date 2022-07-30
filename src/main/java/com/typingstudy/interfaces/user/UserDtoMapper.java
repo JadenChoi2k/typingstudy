@@ -12,11 +12,19 @@ import org.mapstruct.ReportingPolicy;
 @Mapper(
         componentModel = "spring",
         injectionStrategy = InjectionStrategy.CONSTRUCTOR,
-        unmappedTargetPolicy = ReportingPolicy.ERROR
+        unmappedTargetPolicy = ReportingPolicy.IGNORE // some logic needs post-processing
 )
 public interface UserDtoMapper {
 
     UserCommand.DomainUserRegisterRequest of(UserDto.JoinRequest joinRequest);
+
+    UserCommand.CreateFavoriteGroupRequest of(UserDto.CreateFavoriteGroupRequest createFavoriteGroupRequest);
+
+    UserCommand.EditFavoriteGroupRequest of(UserDto.EditFavoriteGroupRequest editFavoriteGroupRequest);
+
+    UserCommand.AddFavoriteItemRequest of(UserDto.AddFavoriteItemRequest addFavoriteItemRequest);
+
+    UserCommand.RemoveFavoriteItemRequest of(UserDto.RemoveFavoriteItemRequest removeFavoriteItemRequest);
 
     UserDto.Main of(UserInfo userInfo);
 

@@ -36,6 +36,14 @@ public class UserCommand {
         private Long userId;
     }
 
+    @Data
+    @Builder
+    public static class EditFavoriteGroupRequest {
+        private Long groupId;
+        private Long userId;
+        private String groupName;
+    }
+
     // userId는 security에서 주입
     @Data
     @Builder
@@ -43,5 +51,12 @@ public class UserCommand {
         private Long userId;
         private Long groupId;
         private String docToken;
+    }
+
+    @Data
+    @Builder
+    public static class RemoveFavoriteItemRequest {
+        private Long userId;
+        private Long itemId;
     }
 }

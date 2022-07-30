@@ -1,5 +1,6 @@
 package com.typingstudy.interfaces.user;
 
+import lombok.Builder;
 import lombok.Data;
 
 import javax.validation.constraints.*;
@@ -32,8 +33,30 @@ public class UserDto {
 
     @Data
     public static class CreateFavoriteGroupRequest {
+        private Long userId;
         @Size(min = 1, max = 50, message = "그룹 이름은 1에서 50자 이내입니다.")
         private String groupName;
+    }
+
+    @Data
+    public static class EditFavoriteGroupRequest {
+        private Long groupId;
+        private Long userId;
+        @Size(min = 1, max = 50, message = "그룹 이름은 1에서 50자 이내입니다.")
+        private String groupName;
+    }
+
+    @Data
+    public static class AddFavoriteItemRequest {
+        private Long userId;
+        private Long groupId;
+        private String dcoToken;
+    }
+
+    @Data
+    public static class RemoveFavoriteItemRequest {
+        private Long userId;
+        private Long itemId;
     }
 
 

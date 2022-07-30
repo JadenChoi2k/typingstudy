@@ -3,6 +3,7 @@ package com.typingstudy.domain.user.favorite;
 import com.typingstudy.domain.user.User;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 
@@ -17,9 +18,10 @@ public class FavoriteGroup {
     private Long id;
 
     @Column(length = 50, nullable = false)
+    @Setter
     private String groupName;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 

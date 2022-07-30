@@ -16,7 +16,7 @@ public class FavoriteItem extends BaseEntity {
     @Column(name = "user_favorite_item_id")
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "group_id")
     private FavoriteGroup group;
 

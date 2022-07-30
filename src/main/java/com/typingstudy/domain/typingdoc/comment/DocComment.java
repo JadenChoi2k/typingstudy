@@ -22,7 +22,7 @@ public class DocComment extends BaseTimeEntity {
     @Column(name = "doc_content_id")
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "doc_id")
     private TypingDoc doc;
 

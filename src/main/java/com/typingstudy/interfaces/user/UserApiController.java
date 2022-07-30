@@ -1,21 +1,16 @@
 package com.typingstudy.interfaces.user;
 
 import com.typingstudy.application.user.UserFacade;
-import com.typingstudy.common.config.auth.PrincipalDetails;
-import com.typingstudy.common.exception.InvalidAccessException;
 import com.typingstudy.common.response.CommonResponse;
-import com.typingstudy.domain.typingdoc.TypingDocInfo;
 import com.typingstudy.domain.user.UserCommand;
 import com.typingstudy.domain.user.UserInfo;
+import com.typingstudy.domain.user.favorite.FavoriteGroupInfo;
 import com.typingstudy.interfaces.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import javax.validation.Valid;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -24,61 +19,42 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserApiController {
     private final UserFacade userFacade;
-    private final UserDtoMapper userDtoMapper;
+    private final UserDtoMapper dtoMapper;
 
     // 도메인 유저의 가입 경로.
     // 소셜 유저는 oauth 패키지에서 자동 가입
     @PostMapping("/join")
-    public CommonResponse join(@RequestBody UserDto.JoinRequest request) {
-        UserCommand.DomainUserRegisterRequest registerRequest = userDtoMapper.of(request);
+    public CommonResponse join(@RequestBody UserDto.JoinRequest requestDto) {
+        UserCommand.DomainUserRegisterRequest registerRequest = dtoMapper.of(requestDto);
         UserInfo joinedUser = userFacade.join(registerRequest);
-        UserDto.Main success = userDtoMapper.of(joinedUser);
+        UserDto.Main success = dtoMapper.of(joinedUser);
         return CommonResponse.success(success);
-    }
-
-    @GetMapping("/test")
-    public String test() {
-        return "test";
     }
 
     @GetMapping("/me")
     public CommonResponse me() {
         return CommonResponse.success(
-                userDtoMapper.of(userFacade.retrieve(getUserId()))
+                dtoMapper.of(userFacade.retrieve(getUserId()))
         );
     }
-
-    // 유저가 작성한 문서들을 페이징한다. size는 기본 20개.
-    // sort: create_date, study_date, views
-    // reverse: true, false
-//    @GetMapping("/me/docs")
-//    public CommonResponse docs(
-//            @RequestParam(name = "page", defaultValue = "0") Integer page,
-//            @RequestParam(name = "sort", defaultValue = "date_desc") String sort,
-//            @RequestParam(name = "direction", defaultValue = "desc") String direction) {
-//        Long userId = getUserId();
-//        Map<String, Object> result = new HashMap<>();
-//        List<TypingDocInfo.PageItem> pageItems = userFacade.retrieveDocs(userId, page, sort, direction);
-//        result.put("page", page);
-//        result.put("sort", sort);
-//        result.put("reverse", direction);
-//        result.put("data", pageItems);
-//        return CommonResponse.success(result);
-//    }
 
     // favorites 구현 후 구현하기
     @GetMapping("/favorites")
     public CommonResponse favorites(@RequestParam(name = "page", defaultValue = "0") Integer page) {
         return CommonResponse.success(
                 userFacade.retrieveFavoriteGroups(getUserId(), page).stream()
-                        .map(userDtoMapper::of)
+                        .map(dtoMapper::of)
                         .collect(Collectors.toList())
         );
     }
 
     @PostMapping("/favorites/create")
-    public CommonResponse createFavoriteGroup(@RequestBody UserDto.CreateFavoriteGroupRequest createRequest) {
-        return null;
+    public CommonResponse createFavoriteGroup(@RequestBody UserDto.CreateFavoriteGroupRequest requestDto) {
+        requestDto.setUserId(getUserId());
+        FavoriteGroupInfo.GroupInfo groupInfo = userFacade.createFavoriteGroup(dtoMapper.of(requestDto));
+        return CommonResponse.success(
+                dtoMapper.of(groupInfo)
+        );
     }
 
     @GetMapping("/favorites/{groupId}")
@@ -87,19 +63,44 @@ public class UserApiController {
             @RequestParam(name = "page", defaultValue = "0") Integer page) {
         return CommonResponse.success(
                 userFacade.retrieveFavoriteGroup(getUserId(), groupId, page).stream()
-                        .map(userDtoMapper::of)
+                        .map(dtoMapper::of)
                         .collect(Collectors.toList())
         );
     }
 
     @PatchMapping("/favorites/{groupId}")
-    public CommonResponse editFavoriteGroup(@PathVariable Long groupId) {
-        return null;
+    public CommonResponse editFavoriteGroup(@PathVariable Long groupId,
+                                            @Valid @RequestBody UserDto.EditFavoriteGroupRequest requestDto) {
+        requestDto.setGroupId(groupId);
+        requestDto.setUserId(getUserId());
+        return CommonResponse.success(
+                userFacade.editFavoriteGroup(dtoMapper.of(requestDto))
+        );
     }
 
     @DeleteMapping("/favorites/{groupId}")
-    public CommonResponse deleteFavoriteGroup() {
-        return null;
+    public CommonResponse removeFavoriteGroup(@PathVariable Long groupId) {
+        userFacade.removeFavoriteGroup(getUserId(), groupId);
+        return CommonResponse.ok();
+    }
+
+    @PostMapping("/favorites/{groupId}/add")
+    public CommonResponse addFavoriteItem(@PathVariable Long groupId,
+                                          @Valid @RequestBody UserDto.AddFavoriteItemRequest requestDto) {
+        requestDto.setGroupId(groupId);
+        requestDto.setUserId(getUserId());
+        userFacade.addFavoriteItem(dtoMapper.of(requestDto));
+        return CommonResponse.ok();
+    }
+
+    @DeleteMapping("/favorites/{groupId}/{itemId}")
+    public CommonResponse removeFavoriteItem(@PathVariable Long groupId,
+                                             @PathVariable Long itemId) {
+        UserDto.RemoveFavoriteItemRequest requestDto = new UserDto.RemoveFavoriteItemRequest();
+        requestDto.setUserId(getUserId());
+        requestDto.setItemId(itemId);
+        userFacade.removeFavoriteItem(dtoMapper.of(requestDto));
+        return CommonResponse.ok();
     }
 
     // 유저의 docReviewHistory를 볼 수 있다.

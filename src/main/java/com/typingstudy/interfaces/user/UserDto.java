@@ -1,6 +1,5 @@
 package com.typingstudy.interfaces.user;
 
-import lombok.Builder;
 import lombok.Data;
 
 import javax.validation.constraints.*;
@@ -70,7 +69,7 @@ public class UserDto {
     @Data
     public static class Main {
         private String id;
-        private String name;
+        private String username;
         private String profileUrl;
     }
 

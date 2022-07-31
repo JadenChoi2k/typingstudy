@@ -1,5 +1,6 @@
 package com.typingstudy.infrastructure.user.favorite;
 
+import com.typingstudy.common.exception.EntityNotFoundException;
 import com.typingstudy.domain.user.favorite.FavoriteGroup;
 import com.typingstudy.domain.user.favorite.FavoriteItem;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +32,12 @@ public class FavoriteRepositoryImpl implements FavoriteRepository {
     @Override
     @Transactional(readOnly = true)
     public List<FavoriteItem> findAllFavoriteItems(Long groupId, int page, int size) {
+        // exist query
+        if (!em.createQuery("select case when (count(fg) > 0)  then true else false end from FavoriteGroup fg" +
+                        " where fg.id = :groupId", Boolean.class)
+                .setParameter("groupId", groupId)
+                .getSingleResult())
+            throw new EntityNotFoundException("존재하지 않는 즐겨찾기 그룹입니다.");
         return em.createQuery("select fi from FavoriteItem fi " +
                         "where fi.group.id = :groupId", FavoriteItem.class)
                 .setParameter("groupId", groupId)

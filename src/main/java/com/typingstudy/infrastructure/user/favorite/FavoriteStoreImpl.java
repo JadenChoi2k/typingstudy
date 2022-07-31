@@ -29,15 +29,17 @@ public class FavoriteStoreImpl implements FavoriteStore {
 
     @Override
     public void remove(FavoriteGroup group) {
+        log.info("즐겨찾기 그룹 제거. group={}", group.getId());
         em.remove(group);
     }
 
     @Override
     public void removeFavoriteItem(Long userId, Long itemId) {
+        //group2.user.id = :userId and item2.id = :itemId
         int removeCount = em.createQuery("delete from FavoriteItem item" +
                         " where item.id = (" +
                         "   select item2.id from FavoriteItem item2" +
-                        "   join FavoriteGroup group2" +
+                        "   join FavoriteGroup group2 on group2.id = item2.group.id" +
                         "   where group2.user.id = :userId and item2.id = :itemId" +
                         ")")
                 .setParameter("userId", userId)

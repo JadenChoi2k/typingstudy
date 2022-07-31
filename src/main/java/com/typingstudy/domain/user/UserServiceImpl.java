@@ -120,7 +120,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public FavoriteGroupInfo.GroupInfo editFavoriteGroup(EditFavoriteGroupRequest request) {
-        FavoriteGroup group = favoriteReader.findGroupById(request.getUserId());
+        FavoriteGroup group = favoriteReader.findGroupById(request.getGroupId());
+        if (group == null) throw new EntityNotFoundException("존재하지 않는 즐겨찾기 그룹입니다.");
         if (!group.getUser().getId().equals(request.getUserId()))
             throw new InvalidAccessException("권한이 없습니다.");
         group.setGroupName(request.getGroupName());

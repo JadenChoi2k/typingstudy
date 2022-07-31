@@ -2,6 +2,7 @@ package com.typingstudy.domain.user;
 
 import com.typingstudy.common.exception.EntityNotFoundException;
 import com.typingstudy.common.exception.InvalidAccessException;
+import com.typingstudy.common.exception.InvalidParameterException;
 import com.typingstudy.domain.typingdoc.DocCommand;
 import com.typingstudy.domain.typingdoc.TypingDoc;
 import com.typingstudy.domain.typingdoc.TypingDocInfo;
@@ -70,7 +71,7 @@ class UserServiceTest {
                 .build());
         // then
         assertThat(userInfo.getId()).isNotNull();
-        assertThat(userInfo.getName()).isEqualTo(username);
+        assertThat(userInfo.getUsername()).isEqualTo(username);
         assertThat(userInfo.getProfileUrl()).isEqualTo(profileUrl);
     }
 
@@ -132,7 +133,7 @@ class UserServiceTest {
         UserInfo retrieveUser = userService.retrieve(Long.parseLong(userInfo.getId()));
         // then
         assertThat(retrieveUser.getId()).isEqualTo(userInfo.getId());
-        assertThat(retrieveUser.getName()).isEqualTo(userInfo.getName());
+        assertThat(retrieveUser.getUsername()).isEqualTo(userInfo.getUsername());
         assertThat(retrieveUser.getProfileUrl()).isEqualTo(userInfo.getProfileUrl());
     }
 
@@ -144,6 +145,34 @@ class UserServiceTest {
         // when, then
         assertThatThrownBy(() -> userService.retrieve(11280312L))
                 .isInstanceOf(EntityNotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("유저 탈퇴")
+    void resign() {
+        // given
+        UserInfo userInfo = userJoin();
+        // when
+        userService.resign(UserCommand.ResignUserRequest.builder()
+                .userId(userInfo.getIdLong())
+                .username(userInfo.getUsername())
+                .build());
+        // then
+        assertThatThrownBy(() -> userService.retrieve(userInfo.getIdLong()))
+                .isInstanceOf(EntityNotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("유저 탈퇴 실패 - 유저 이름 불일치")
+    void resign_fail() {
+        // given
+        UserInfo userInfo = userJoin();
+        // when, then
+        assertThatThrownBy(() -> userService.resign(UserCommand.ResignUserRequest.builder()
+                .userId(userInfo.getIdLong())
+                .username(userInfo.getUsername() + "nono")
+                .build())
+        ).isInstanceOf(InvalidParameterException.class);
     }
 
     @Test
@@ -177,6 +206,64 @@ class UserServiceTest {
                                 .build()
                 )
         ).isInstanceOf(EntityNotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("즐겨찾기 그룹 제거")
+    void remove_favorite_group() {
+        // given
+        UserInfo userInfo = userJoin();
+        String groupName = "my favorite";
+        FavoriteGroupInfo.GroupInfo groupInfo = userService.createFavoriteGroup(UserCommand.CreateFavoriteGroupRequest.builder()
+                .userId(Long.parseLong(userInfo.getId()))
+                .groupName(groupName)
+                .build());
+        // when
+        userService.removeFavoriteGroup(userInfo.getIdLong(), groupInfo.getGroupId());
+        // then
+        assertThatThrownBy(() -> userService.retrieveFavoriteGroup(userInfo.getIdLong(), groupInfo.getGroupId(), 0))
+                .isInstanceOf(EntityNotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("즐겨찾기 그룹 수정")
+    void edit_favorite_group() {
+        // given
+        UserInfo userInfo = userJoin();
+        String groupName = "my favorite";
+        String editName = "new favorite";
+        FavoriteGroupInfo.GroupInfo groupInfo = userService.createFavoriteGroup(UserCommand.CreateFavoriteGroupRequest.builder()
+                .userId(Long.parseLong(userInfo.getId()))
+                .groupName(groupName)
+                .build());
+        // when
+        FavoriteGroupInfo.GroupInfo editGroupInfo = userService.editFavoriteGroup(UserCommand.EditFavoriteGroupRequest.builder()
+                .userId(userInfo.getIdLong())
+                .groupId(groupInfo.getGroupId())
+                .groupName(editName)
+                .build());
+        // then
+        assertThat(editGroupInfo.getGroupName()).isEqualTo(editName);
+    }
+
+    @Test
+    @DisplayName("즐겨찾기 그룹 수정 실패 - 권한 없음")
+    void edit_favorite_group_fail() {
+        // given
+        UserInfo userInfo = userJoin();
+        String groupName = "my favorite";
+        String editName = "new favorite";
+        FavoriteGroupInfo.GroupInfo groupInfo = userService.createFavoriteGroup(UserCommand.CreateFavoriteGroupRequest.builder()
+                .userId(Long.parseLong(userInfo.getId()))
+                .groupName(groupName)
+                .build());
+        // when, then
+        assertThatThrownBy(() -> userService.editFavoriteGroup(UserCommand.EditFavoriteGroupRequest.builder()
+                .userId(userInfo.getIdLong() + 123L)
+                .groupId(groupInfo.getGroupId())
+                .groupName(editName)
+                .build())
+        ).isInstanceOf(InvalidAccessException.class);
     }
 
     @Test
@@ -316,5 +403,31 @@ class UserServiceTest {
                 .allMatch(item -> item.getGroupId().equals(groupInfo.getGroupId()))
                 .allMatch(item -> item.getDocToken() != null)
                 .isSortedAccordingTo(Comparator.comparing(FavoriteGroupInfo.ItemInfo::getItemId));
+    }
+
+    @Test
+    @DisplayName("즐겨찾기 아이템 삭제")
+    void remove_favorite_item() {
+        // given
+        UserInfo userInfo = userJoin();
+        String groupName = "my favorite";
+        TypingDocInfo.Main doc = createDoc(userInfo.getIdLong());
+        FavoriteGroupInfo.GroupInfo groupInfo = userService.createFavoriteGroup(UserCommand.CreateFavoriteGroupRequest.builder()
+                .userId(Long.parseLong(userInfo.getId()))
+                .groupName(groupName)
+                .build());
+        FavoriteGroupInfo.ItemInfo itemInfo = userService.addFavoriteItem(UserCommand.AddFavoriteItemRequest.builder()
+                .userId(userInfo.getIdLong())
+                .groupId(groupInfo.getGroupId())
+                .docToken(doc.getDocToken())
+                .build());
+        // when
+        userService.removeFavoriteItem(UserCommand.RemoveFavoriteItemRequest.builder()
+                .itemId(itemInfo.getItemId())
+                .userId(userInfo.getIdLong())
+                .build());
+        // then
+        List<FavoriteGroupInfo.ItemInfo> items = userService.retrieveFavoriteGroup(userInfo.getIdLong(), groupInfo.getGroupId(), 0);
+        assertThat(items).isEmpty();
     }
 }

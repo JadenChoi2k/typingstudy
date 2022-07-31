@@ -22,6 +22,13 @@ public class UserCommand {
 
     @Data
     @Builder
+    public static class ResignUserRequest {
+        private String username;
+        private Long userId;
+    }
+
+    @Data
+    @Builder
     public static class SocialUserRegisterRequest {
         private User.SocialPlatform platform;
         private String email;

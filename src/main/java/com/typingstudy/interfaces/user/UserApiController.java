@@ -103,21 +103,18 @@ public class UserApiController {
         return CommonResponse.ok();
     }
 
-    // 유저의 docReviewHistory를 볼 수 있다.
-    @GetMapping("/history")
-    public CommonResponse history() {
-        return null;
-    }
-
     // 로그아웃을 한다. LogoutFilter가 동작하지만 아직 미구현 (캐시 이용).
     @PostMapping("/logout")
     public CommonResponse logout() {
-        return null;
+        return CommonResponse.ok();
     }
 
+    // 서비스로부터 탈퇴.
     @PostMapping("/resign")
-    public CommonResponse resignService() {
-        return null;
+    public CommonResponse resignService(@Valid @RequestBody UserDto.ResignUserRequest request) {
+        request.setUserId(getUserId());
+        userFacade.resign(dtoMapper.of(request));
+        return CommonResponse.ok();
     }
 
     private Long getUserId() {

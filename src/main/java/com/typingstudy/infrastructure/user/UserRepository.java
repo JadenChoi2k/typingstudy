@@ -17,5 +17,7 @@ public interface UserRepository {
 
     User save(User user);
 
+    void remove(User user);
+
     boolean exists(String email);
 }

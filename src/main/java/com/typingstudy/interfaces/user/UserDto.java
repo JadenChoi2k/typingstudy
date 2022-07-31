@@ -59,6 +59,13 @@ public class UserDto {
         private Long itemId;
     }
 
+    @Data
+    public static class ResignUserRequest {
+        private Long userId;
+        @NotNull(message = "필수 파라미터: username")
+        private String username;
+    }
+
 
     @Data
     public static class Main {

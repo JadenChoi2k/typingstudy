@@ -35,6 +35,10 @@ public class UserFacade {
         return userService.retrieve(userId);
     }
 
+    public void resign(UserCommand.ResignUserRequest request) {
+        userService.resign(request);
+    }
+
     public FavoriteGroupInfo.GroupInfo createFavoriteGroup(UserCommand.CreateFavoriteGroupRequest request) {
         return userService.createFavoriteGroup(request);
     }

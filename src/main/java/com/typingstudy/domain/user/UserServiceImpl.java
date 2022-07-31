@@ -2,6 +2,7 @@ package com.typingstudy.domain.user;
 
 import com.typingstudy.common.exception.EntityNotFoundException;
 import com.typingstudy.common.exception.InvalidAccessException;
+import com.typingstudy.common.exception.InvalidParameterException;
 import com.typingstudy.domain.typingdoc.TypingDoc;
 import com.typingstudy.domain.typingdoc.TypingDocReader;
 import com.typingstudy.domain.user.favorite.*;
@@ -68,6 +69,15 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     public UserInfo retrieve(Long userId) {
         return UserInfo.of(userReader.findById(userId));
+    }
+
+    @Override
+    public void resign(ResignUserRequest request) {
+        User user = userReader.findById(request.getUserId());
+        if (!user.getUsername().equals(request.getUsername())) {
+            throw new InvalidParameterException("유저 이름이 일치하지 않습니다.");
+        }
+        userStore.remove(user);
     }
 
     @Override

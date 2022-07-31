@@ -26,6 +26,8 @@ public interface UserDtoMapper {
 
     UserCommand.RemoveFavoriteItemRequest of(UserDto.RemoveFavoriteItemRequest removeFavoriteItemRequest);
 
+    UserCommand.ResignUserRequest of(UserDto.ResignUserRequest resignUserRequest);
+
     UserDto.Main of(UserInfo userInfo);
 
     UserDto.FavoriteItemDto of(FavoriteGroupInfo.ItemInfo itemInfo);

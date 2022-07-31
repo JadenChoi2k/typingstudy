@@ -16,4 +16,9 @@ public class UserStoreImpl implements UserStore {
     public User store(User user) {
         return userRepository.save(user);
     }
+
+    @Override
+    public void remove(User user) {
+        userRepository.remove(user);
+    }
 }

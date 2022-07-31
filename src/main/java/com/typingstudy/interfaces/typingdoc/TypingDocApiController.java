@@ -64,6 +64,14 @@ public class TypingDocApiController {
         return CommonResponse.success(data);
     }
 
+    // 유저의 docReviewHistory를 볼 수 있다.
+    @GetMapping("/history")
+    public CommonResponse history(@RequestParam(name = "page", defaultValue = "0") int page) {
+        return CommonResponse.success(
+                docFacade.reviewHistoryByUserId(SecurityUtils.getUserId())
+        );
+    }
+
     @GetMapping("/{docToken}/comment")
     public CommonResponse docComment(@PathVariable String docToken) {
         TypingDocInfo.Main doc = docFacade.retrieveDoc(docToken);

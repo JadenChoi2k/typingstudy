@@ -1,5 +1,6 @@
 package com.typingstudy.infrastructure.user;
 
+import com.typingstudy.common.exception.AlreadyExistException;
 import com.typingstudy.domain.user.User;
 import com.typingstudy.domain.user.favorite.FavoriteGroup;
 import com.typingstudy.domain.user.favorite.FavoriteItem;
@@ -28,6 +29,8 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public User save(User user) {
+        if (userJpaRepository.existsByEmail(user.getEmail()))
+            throw new AlreadyExistException("이미 존재하는 유저입니다.");
         return userJpaRepository.save(user);
     }
 

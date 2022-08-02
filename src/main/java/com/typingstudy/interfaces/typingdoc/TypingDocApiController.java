@@ -10,6 +10,7 @@ import com.typingstudy.domain.typingdoc.history.DocReviewHistoryInfo;
 import com.typingstudy.domain.typingdoc.object.DocObjectInfo;
 import com.typingstudy.interfaces.SecurityUtils;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ContentDisposition;
@@ -22,14 +23,28 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @RequestMapping("/api/v1/docs")
 @RestController
 @RequiredArgsConstructor
 public class TypingDocApiController {
-    private TypingDocFacade docFacade;
-    private TypingDocDtoMapper dtoMapper;
+    private final TypingDocFacade docFacade;
+    private final TypingDocDtoMapper dtoMapper;
 
-    @GetMapping("/")
+    @GetMapping("/test")
+    public CommonResponse test(@Valid @RequestBody TypingDocDto.TestRequest testRequest) {
+        log.info("test request={}", testRequest);
+        return CommonResponse.ok();
+    }
+
+    @PostMapping
+    public CommonResponse createDoc(@Valid @RequestBody TypingDocDto.CreateDoc createRequest) {
+        createRequest.setAuthorId(SecurityUtils.getUserId());
+        TypingDocInfo.Main doc = docFacade.createDoc(dtoMapper.of(createRequest));
+        return CommonResponse.success(dtoMapper.of(doc));
+    }
+
+    @GetMapping
     public CommonResponse docs(
             @RequestParam(name = "page", defaultValue = "0") Integer page,
             @RequestParam(name = "sort", defaultValue = "createDate") String sort,
@@ -114,13 +129,6 @@ public class TypingDocApiController {
         addObject.setDocToken(docToken);
         docFacade.addDocObject(dtoMapper.of(addObject));
         return CommonResponse.ok();
-    }
-
-    @PostMapping("/create")
-    public CommonResponse createDoc(@Valid @RequestBody TypingDocDto.CreateDoc createRequest) {
-        createRequest.setAuthorId(SecurityUtils.getUserId());
-        TypingDocInfo.Main doc = docFacade.createDoc(dtoMapper.of(createRequest));
-        return CommonResponse.success(dtoMapper.of(doc));
     }
 
     @PatchMapping("/{docToken}")

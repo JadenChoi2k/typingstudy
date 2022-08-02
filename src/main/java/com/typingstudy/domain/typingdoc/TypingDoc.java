@@ -1,5 +1,8 @@
 package com.typingstudy.domain.typingdoc;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+import com.typingstudy.common.exception.InvalidParameterException;
 import com.typingstudy.common.utils.TokenGenerator;
 import com.typingstudy.domain.BaseEntity;
 import com.typingstudy.domain.typingdoc.comment.DocComment;
@@ -9,6 +12,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.ColumnDefault;
 import org.springframework.util.StringUtils;
 
@@ -47,11 +51,30 @@ public class TypingDoc extends BaseEntity {
 
     private LocalDateTime lastStudyDate;
 
+    @Slf4j
+    @Getter
     @RequiredArgsConstructor
     public enum Access {
         PUBLIC("공개"), PRIVATE("비공개"), PROTECTED("일부 공개");
 
         private final String description;
+
+        @JsonCreator
+        public static Access from(String s) {
+            log.info("JsonCreator 동작함. s={}", s);
+            return switch (s) {
+                case "공개" -> Access.PUBLIC;
+                case "비공개" -> Access.PRIVATE;
+                case "일부 공개" -> Access.PROTECTED;
+                default -> throw new InvalidParameterException("존재하지 않는 액세스 타입입니다: " + s);
+            };
+            //            return Access.valueOf(s.toUpperCase());
+        }
+
+//        @JsonValue
+//        public String getValue() {
+//            return this.description;
+//        }
     }
 
     @Builder

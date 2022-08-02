@@ -1,9 +1,13 @@
 package com.typingstudy.interfaces.typingdoc;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.typingstudy.common.exception.InvalidParameterException;
 import com.typingstudy.domain.typingdoc.TypingDoc;
 import com.typingstudy.domain.typingdoc.comment.DocCommentInfo;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.validation.constraints.*;
 import java.time.LocalDateTime;
@@ -13,7 +17,6 @@ public class TypingDocDto {
 
     /* 반환 데이터 클래스 */
     @Data
-    @Builder
     public static class DocInfo {
         private String docToken;
         private Long authorId;
@@ -28,7 +31,6 @@ public class TypingDocDto {
     }
 
     @Data
-    @Builder
     public static class DocPageItem {
         private String docToken;
         private Long authorId;
@@ -40,14 +42,12 @@ public class TypingDocDto {
     }
 
     @Data
-    @Builder
     public static class History {
         private LocalDateTime reviewAt;
         private String docToken;
     }
 
     @Data
-    @Builder
     public static class Comment {
         private Long id;
         private String docToken;
@@ -57,8 +57,8 @@ public class TypingDocDto {
     }
 
     /* 입력(request) 데이터 클래스 */
+    @Slf4j
     @Data
-    @Builder
     public static class CreateDoc {
         private Long authorId;
         @Size(min = 1, max = 50)
@@ -69,8 +69,15 @@ public class TypingDocDto {
         private TypingDoc.Access access;
     }
 
+    @Slf4j
     @Data
-    @Builder
+    @NoArgsConstructor
+    public static class TestRequest {
+        private String title;
+        private String content;
+    }
+
+    @Data
     public static class EditDoc {
         private Long authorId;
         @NotNull
@@ -83,7 +90,6 @@ public class TypingDocDto {
     }
 
     @Data
-    @Builder
     public static class AddObject {
         private Long authorId;
         private String docToken;

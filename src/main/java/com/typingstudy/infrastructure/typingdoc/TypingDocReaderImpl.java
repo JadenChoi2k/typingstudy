@@ -37,4 +37,9 @@ public class TypingDocReaderImpl implements TypingDocReader {
     public DocObject findDocObject(String docToken, String fileName) {
         return docRepository.findDocObject(docToken, fileName);
     }
+
+    @Override
+    public boolean validatePrivate(String docToken, Long userId) {
+        return docRepository.validatePrivate(docToken, userId);
+    }
 }

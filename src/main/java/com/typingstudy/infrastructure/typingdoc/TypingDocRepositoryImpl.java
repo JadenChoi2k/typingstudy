@@ -74,4 +74,19 @@ public class TypingDocRepositoryImpl implements TypingDocRepository {
     public TypingDoc save(TypingDoc doc) {
         return docRepository.save(doc);
     }
+
+    @Override
+    public boolean validatePrivate(String docToken, Long userId) {
+        boolean result = em.createQuery("select true from TypingDoc doc" +
+                        " where doc.docToken = :docToken and (" +
+                        "   doc.access = TypingDoc.Access.PUBLIC" +
+                        "   or doc.access = TypingDoc.Access.PROTECTED" +
+                        "   or doc.authorId = :userId" +
+                        ") ", Boolean.class)
+                .setParameter("docToken", docToken)
+                .getResultList().stream()
+                .findFirst() // 만약 결과값이 없으면 private 문서에 접근하는 다른 유저
+                .orElse(false);
+        return result;
+    }
 }

@@ -1,12 +1,9 @@
 package com.typingstudy.interfaces.typingdoc;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.typingstudy.common.exception.InvalidParameterException;
 import com.typingstudy.domain.typingdoc.TypingDoc;
 import com.typingstudy.domain.typingdoc.comment.DocCommentInfo;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.validation.constraints.*;
@@ -26,8 +23,8 @@ public class TypingDocDto {
         private List<DocCommentInfo.Main> comments;
         private Integer views;
         private LocalDateTime lastStudyDate;
-        private LocalDateTime editDate;
         private LocalDateTime createDate;
+        private LocalDateTime editDate;
     }
 
     @Data
@@ -39,6 +36,7 @@ public class TypingDocDto {
         private Integer views;
         private LocalDateTime lastStudyDate;
         private LocalDateTime createDate;
+        private LocalDateTime editDate;
     }
 
     @Data
@@ -69,12 +67,28 @@ public class TypingDocDto {
         private TypingDoc.Access access;
     }
 
-    @Slf4j
     @Data
-    @NoArgsConstructor
-    public static class TestRequest {
-        private String title;
+    public static class AddDocComment {
+        private String docToken;
+        private Long userId;
+        @NotEmpty(message = "1자 이상 입력해주세요")
+        @Max(value = 1023)
         private String content;
+    }
+
+    @Data
+    public static class EditDocComment {
+        private Long commentId;
+        private Long userId;
+        @NotEmpty(message = "1자 이상 입력해주세요")
+        @Max(value = 1023)
+        private String content;
+    }
+
+    @Data
+    public static class RemoveDocComment {
+        private Long commentId;
+        private Long userId;
     }
 
     @Data

@@ -22,4 +22,6 @@ public interface TypingDocReader {
     TypingDoc findByToken(String token);
 
     DocObject findDocObject(String docToken, String fileName);
+
+    boolean validatePrivate(String docToken, Long userId);
 }

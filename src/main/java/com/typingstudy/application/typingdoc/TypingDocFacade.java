@@ -29,6 +29,10 @@ public class TypingDocFacade {
         docService.removeDoc(request);
     }
 
+    public boolean validatePrivate(String docToken, Long userId) {
+        return docService.validatePrivate(docToken, userId);
+    }
+
     public void addDocObject(DocCommand.AddObjectRequest request) {
         docService.addDocObject(request);
     }
@@ -51,6 +55,11 @@ public class TypingDocFacade {
 
     public TypingDocInfo.Main retrieveDoc(String docToken) {
         return docService.retrieveDoc(docToken);
+    }
+
+    // 조회수 증가
+    public TypingDocInfo.Main viewDoc(String docToken) {
+        return docService.viewDoc(docToken);
     }
 
     public void reviewDoc(DocCommand.ReviewRequest request) {

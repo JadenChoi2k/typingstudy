@@ -14,6 +14,8 @@ public interface TypingDocService {
 
     void removeDoc(DocCommand.RemoveDocRequest request);
 
+    boolean validatePrivate(String docToken, Long userId);
+
     void addDocObject(DocCommand.AddObjectRequest request);
 
     DocObjectInfo retrieveDocObject(DocCommand.RetrieveDocObjectRequest request);
@@ -28,6 +30,8 @@ public interface TypingDocService {
 
     // 문서 단건 조회
     TypingDocInfo.Main retrieveDoc(String docToken);
+
+    TypingDocInfo.Main viewDoc(String docToken);
 
     // 문서 복습
     void reviewDoc(DocCommand.ReviewRequest request);

@@ -20,8 +20,8 @@ public class TypingDocInfo {
         private List<DocCommentInfo.Main> comments;
         private Integer views;
         private LocalDateTime lastStudyDate;
-        private LocalDateTime editDate;
         private LocalDateTime createDate;
+        private LocalDateTime editDate;
 
         public static Main of(TypingDoc doc) {
             return Main.builder()
@@ -32,8 +32,8 @@ public class TypingDocInfo {
                     .access(doc.getAccess())
                     .views(doc.getViews())
                     .lastStudyDate(doc.getLastStudyDate())
-                    .editDate(doc.getEditedAt())
                     .createDate(doc.getCreatedAt())
+                    .editDate(doc.getEditedAt())
                     .build();
         }
     }

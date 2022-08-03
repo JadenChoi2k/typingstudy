@@ -67,6 +67,11 @@ public class TypingDocServiceImpl implements TypingDocService {
     }
 
     @Override
+    public boolean validatePrivate(String docToken, Long userId) {
+        return typingDocReader.validatePrivate(docToken, userId);
+    }
+
+    @Override
     public void addDocObject(DocCommand.AddObjectRequest request) {
         TypingDoc doc = typingDocReader.findByToken(request.getDocToken());
         validateDoc(doc, request.getAuthorId());
@@ -74,6 +79,7 @@ public class TypingDocServiceImpl implements TypingDocService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public DocObjectInfo retrieveDocObject(DocCommand.RetrieveDocObjectRequest request) {
         return DocObjectInfo.of(
                 typingDocReader.findDocObject(request.getDocToken(), request.getFileName())
@@ -97,6 +103,7 @@ public class TypingDocServiceImpl implements TypingDocService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<TypingDocInfo.PageItem> retrieveDocs(List<String> docTokenList) {
         return typingDocReader.findAllByTokenList(docTokenList).stream()
                 .map(TypingDocInfo.PageItem::new)
@@ -104,8 +111,22 @@ public class TypingDocServiceImpl implements TypingDocService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public TypingDocInfo.Main retrieveDoc(String docToken) {
         TypingDocInfo.Main docInfo = TypingDocInfo.Main.of(typingDocReader.findByToken(docToken));
+        docInfo.setComments(
+                docCommentReader.findAll(docToken).stream()
+                        .map(comment -> DocCommentInfo.Main.of(comment, docToken))
+                        .collect(Collectors.toList())
+        );
+        return docInfo;
+    }
+
+    @Override
+    public TypingDocInfo.Main viewDoc(String docToken) {
+        TypingDoc doc = typingDocReader.findByToken(docToken);
+        doc.onView();
+        TypingDocInfo.Main docInfo = TypingDocInfo.Main.of(doc);
         docInfo.setComments(
                 docCommentReader.findAll(docToken).stream()
                         .map(comment -> DocCommentInfo.Main.of(comment, docToken))
@@ -123,6 +144,7 @@ public class TypingDocServiceImpl implements TypingDocService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<DocReviewHistoryInfo> reviewHistoryByToken(String docToken, Integer page) {
         return historyReader.findAllByToken(docToken, page).stream()
                 .map(DocReviewHistoryInfo::of)
@@ -130,6 +152,7 @@ public class TypingDocServiceImpl implements TypingDocService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<DocReviewHistoryInfo> reviewHistoryByUserId(Long userId) {
         return historyReader.findAllByUserId(userId).stream()
                 .map(DocReviewHistoryInfo::of)
@@ -137,16 +160,19 @@ public class TypingDocServiceImpl implements TypingDocService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public long reviewCountByToken(String docToken) {
         return historyReader.countsByToken(docToken);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public long reviewCountByUserId(Long userId) {
         return historyReader.countsByUserId(userId);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<DocCommentInfo.Main> retrieveComments(String docToken) {
         return docCommentReader.findAll(docToken).stream()
                 .map(comment -> DocCommentInfo.Main.of(comment, docToken))
@@ -156,6 +182,10 @@ public class TypingDocServiceImpl implements TypingDocService {
     @Override
     public DocCommentInfo.Main addComment(DocCommand.AddCommentRequest request) {
         TypingDoc doc = typingDocReader.findByToken(request.getDocToken());
+        if (doc.getAccess() == TypingDoc.Access.PRIVATE &&
+                !doc.getAuthorId().equals(request.getUserId())) {
+            throw new InvalidAccessException("권한이 없습니다.");
+        }
         DocComment comment = docCommentStore.store(doc.createComment(request.getUserId(), request.getContent()));
         return DocCommentInfo.Main.of(comment);
     }

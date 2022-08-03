@@ -6,6 +6,7 @@ import com.typingstudy.common.response.CommonResponse;
 import com.typingstudy.domain.typingdoc.DocCommand;
 import com.typingstudy.domain.typingdoc.TypingDoc;
 import com.typingstudy.domain.typingdoc.TypingDocInfo;
+import com.typingstudy.domain.typingdoc.comment.DocCommentInfo;
 import com.typingstudy.domain.typingdoc.history.DocReviewHistoryInfo;
 import com.typingstudy.domain.typingdoc.object.DocObjectInfo;
 import com.typingstudy.interfaces.SecurityUtils;
@@ -31,12 +32,6 @@ public class TypingDocApiController {
     private final TypingDocFacade docFacade;
     private final TypingDocDtoMapper dtoMapper;
 
-    @GetMapping("/test")
-    public CommonResponse test(@Valid @RequestBody TypingDocDto.TestRequest testRequest) {
-        log.info("test request={}", testRequest);
-        return CommonResponse.ok();
-    }
-
     @PostMapping
     public CommonResponse createDoc(@Valid @RequestBody TypingDocDto.CreateDoc createRequest) {
         createRequest.setAuthorId(SecurityUtils.getUserId());
@@ -47,7 +42,7 @@ public class TypingDocApiController {
     @GetMapping
     public CommonResponse docs(
             @RequestParam(name = "page", defaultValue = "0") Integer page,
-            @RequestParam(name = "sort", defaultValue = "createDate") String sort,
+            @RequestParam(name = "sort", defaultValue = "createdAt") String sort,
             @RequestParam(name = "direction", defaultValue = "desc") String direction) {
         List<TypingDocInfo.PageItem> pageResult =
                 docFacade.retrieveDocs(SecurityUtils.getUserId(), page, sort, direction);
@@ -56,9 +51,22 @@ public class TypingDocApiController {
         );
     }
 
+    @GetMapping
+    public CommonResponse docsByToken(@RequestParam(name = "token") List<String> tokenList) {
+        List<TypingDocInfo.PageItem> pageResult = docFacade.retrieveDocs(tokenList);
+        Long userId = SecurityUtils.getUserId();
+        pageResult.forEach(item -> {
+                    if (item.getAccess() == TypingDoc.Access.PRIVATE && !item.getAuthorId().equals(userId))
+                        throw new InvalidAccessException("권한이 없습니다.");
+                });
+        return CommonResponse.success(
+                pageResult.stream().map(dtoMapper::of).toList()
+        );
+    }
+
     @GetMapping("/{docToken}")
     public CommonResponse findOne(@PathVariable String docToken) {
-        TypingDocInfo.Main doc = docFacade.retrieveDoc(docToken);
+        TypingDocInfo.Main doc = docFacade.viewDoc(docToken);
         if (doc.getAccess() == TypingDoc.Access.PRIVATE) {
             Long userId = SecurityUtils.getUserId();
             if (!doc.getAuthorId().equals(userId)) {
@@ -82,9 +90,13 @@ public class TypingDocApiController {
     // 유저의 docReviewHistory를 볼 수 있다.
     @GetMapping("/history")
     public CommonResponse history(@RequestParam(name = "page", defaultValue = "0") int page) {
-        return CommonResponse.success(
-                docFacade.reviewHistoryByUserId(SecurityUtils.getUserId())
-        );
+        Long userId = SecurityUtils.getUserId();
+        long historyCount = docFacade.reviewCountByUserId(userId);
+        List<DocReviewHistoryInfo> historyList = docFacade.reviewHistoryByUserId(userId);
+        Map<String, Object> data = new HashMap<>();
+        data.put("data", historyList.stream().map(dtoMapper::of).toList());
+        data.put("size", historyCount);
+        return CommonResponse.success(data);
     }
 
     @GetMapping("/{docToken}/comment")
@@ -95,18 +107,52 @@ public class TypingDocApiController {
                 throw new InvalidAccessException("잘못된 접근입니다");
             }
         }
+        List<DocCommentInfo.Main> comments = docFacade.retrieveComments(docToken);
         return CommonResponse.success(
-                doc.getComments().stream()
+                comments.stream()
                         .map(dtoMapper::of)
                         .toList()
         );
+    }
+
+    @PostMapping("/{docToken}/comment")
+    public CommonResponse addDocComment(@PathVariable String docToken,
+                                        @Valid @RequestBody TypingDocDto.AddDocComment request) {
+        boolean valid = docFacade.validatePrivate(docToken, request.getUserId());
+        if (!valid) throw new InvalidAccessException("권한이 없습니다.");
+        request.setDocToken(docToken);
+        request.setUserId(SecurityUtils.getUserId());
+        return CommonResponse.success(
+                docFacade.addComment(dtoMapper.of(request)) // private 문서 검증 포함
+        );
+    }
+
+    @PatchMapping("/{docToken}/comment/{commentId}")
+    public CommonResponse editDocComment(@PathVariable String docToken,
+                                         @PathVariable Long commentId,
+                                         @Valid @RequestBody TypingDocDto.EditDocComment request) {
+        request.setCommentId(commentId);
+        request.setUserId(SecurityUtils.getUserId());
+        return CommonResponse.success(
+                docFacade.editComment(dtoMapper.of(request))
+        );
+    }
+
+    @DeleteMapping("/{docToken}/comment/{commentId}")
+    public CommonResponse deleteDocComment(@PathVariable String docToken,
+                                         @PathVariable Long commentId,
+                                         @Valid @RequestBody TypingDocDto.RemoveDocComment request) {
+        request.setCommentId(commentId);
+        request.setUserId(SecurityUtils.getUserId());
+        docFacade.removeComment(dtoMapper.of(request));
+        return CommonResponse.ok();
     }
 
     @GetMapping("/{docToken}/obj/{fileName}")
     public ResponseEntity<Resource> docObject(@PathVariable String docToken, @PathVariable String fileName) {
         TypingDocInfo.Main doc = docFacade.retrieveDoc(docToken);
         if (doc.getAccess() == TypingDoc.Access.PRIVATE
-        && !doc.getAuthorId().equals(SecurityUtils.getUserId())) {
+                && !doc.getAuthorId().equals(SecurityUtils.getUserId())) {
             throw new InvalidAccessException("권한이 없습니다");
         }
         DocObjectInfo docObject = docFacade.retrieveDocObject(

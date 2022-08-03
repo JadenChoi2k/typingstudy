@@ -24,6 +24,12 @@ public interface TypingDocDtoMapper {
 
     DocCommand.CreateRequest of(TypingDocDto.CreateDoc createDocDto);
 
+    DocCommand.AddCommentRequest of(TypingDocDto.AddDocComment addDocCommentDto);
+
+    DocCommand.EditCommentRequest of(TypingDocDto.EditDocComment editDocCommentDto);
+
+    DocCommand.RemoveCommentRequest of(TypingDocDto.RemoveDocComment removeDocCommentDto);
+
     DocCommand.EditDocRequest of(TypingDocDto.EditDoc editDocDto);
 
     DocCommand.AddObjectRequest of(TypingDocDto.AddObject addObjectDto);

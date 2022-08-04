@@ -51,7 +51,7 @@ public class TypingDocApiController {
         );
     }
 
-    @GetMapping
+    @GetMapping("/bytokens")
     public CommonResponse docsByToken(@RequestParam(name = "token") List<String> tokenList) {
         List<TypingDocInfo.PageItem> pageResult = docFacade.retrieveDocs(tokenList);
         Long userId = SecurityUtils.getUserId();

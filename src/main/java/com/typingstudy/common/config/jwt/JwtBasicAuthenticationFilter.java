@@ -29,7 +29,7 @@ public class JwtBasicAuthenticationFilter extends UsernamePasswordAuthentication
             ObjectMapper om = new ObjectMapper();
             var loginRequest = om.readValue(request.getInputStream(), UserDto.LoginRequest.class);
             request.setAttribute("JwtAuth", UUID.randomUUID().toString());
-            log.info("[{}] 로그인 시도: {}", request.getAttribute("JwtAuth"), loginRequest);
+            log.info("[{}] 로그인 시도: {}", request.getAttribute("JwtAuth"), loginRequest.getEmail());
             UsernamePasswordAuthenticationToken authenticationToken =
                     new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword());
             return authenticationManager.authenticate(authenticationToken);

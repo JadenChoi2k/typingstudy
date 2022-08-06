@@ -39,6 +39,11 @@ public class UserReaderImpl implements UserReader {
     }
 
     @Override
+    public FavoriteGroup findFavoriteGroup(Long groupId) {
+        return favoriteRepository.findGroupById(groupId);
+    }
+
+    @Override
     public List<FavoriteItem> findAllFavoriteItems(Long groupId, int page, int size) {
         return favoriteRepository.findAllFavoriteItems(groupId, page, size);
     }

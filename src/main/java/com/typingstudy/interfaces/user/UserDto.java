@@ -4,6 +4,7 @@ import lombok.Data;
 
 import javax.validation.constraints.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class UserDto {
 
@@ -77,6 +78,15 @@ public class UserDto {
     public static class FavoriteGroupDto {
         private Long groupId;
         private String groupName;
+        private Long userId;
+    }
+
+    @Data
+    public static class FavoriteGroupWithItemDto {
+        private Long groupId;
+        private String groupName;
+        private Long userId;
+        private List<FavoriteItemDto> items;
     }
 
     @Data

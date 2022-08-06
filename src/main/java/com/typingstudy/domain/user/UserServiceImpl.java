@@ -96,7 +96,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<FavoriteGroupInfo.ItemInfo> retrieveFavoriteGroup(Long userId, Long groupId, int page) {
+    public FavoriteGroupInfo.GroupWithItemInfo retrieveFavoriteGroup(Long groupId) {
+        FavoriteGroup favoriteGroup = userReader.findFavoriteGroup(groupId);
+        if (favoriteGroup == null)
+            throw new EntityNotFoundException("그룹을 찾을 수 없습니다.");
+        return new FavoriteGroupInfo.GroupWithItemInfo(favoriteGroup);
+    }
+
+    @Override
+    public List<FavoriteGroupInfo.ItemInfo> retrieveFavoriteGroupItems(Long userId, Long groupId, int page) {
         List<FavoriteItem> items = userReader.findAllFavoriteItems(groupId, page, 20);
         Map<String, TypingDoc> docTokenToDocMap = docReader
                 .findAllByTokenList(items.stream().map(FavoriteItem::getDocToken).collect(Collectors.toList()))

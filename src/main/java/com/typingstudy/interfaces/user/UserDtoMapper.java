@@ -32,6 +32,8 @@ public interface UserDtoMapper {
 
     UserDto.FavoriteItemDto of(FavoriteGroupInfo.ItemInfo itemInfo);
 
+    UserDto.FavoriteGroupWithItemDto of(FavoriteGroupInfo.GroupWithItemInfo groupWithItemInfo);
+
     UserDto.FavoriteGroupDto of(FavoriteGroupInfo.GroupInfo groupInfo);
 
     TypingDocDto.History of(DocReviewHistoryInfo historyInfo);

@@ -221,7 +221,7 @@ class UserServiceTest {
         // when
         userService.removeFavoriteGroup(userInfo.getIdLong(), groupInfo.getGroupId());
         // then
-        assertThatThrownBy(() -> userService.retrieveFavoriteGroup(userInfo.getIdLong(), groupInfo.getGroupId(), 0))
+        assertThatThrownBy(() -> userService.retrieveFavoriteGroupItems(userInfo.getIdLong(), groupInfo.getGroupId(), 0))
                 .isInstanceOf(EntityNotFoundException.class);
     }
 
@@ -396,7 +396,7 @@ class UserServiceTest {
         }
         // when
         List<FavoriteGroupInfo.ItemInfo> favoriteItems =
-                userService.retrieveFavoriteGroup(userInfo.getIdLong(), groupInfo.getGroupId(), 0);
+                userService.retrieveFavoriteGroupItems(userInfo.getIdLong(), groupInfo.getGroupId(), 0);
         // then
         assertThat(favoriteItems)
                 .hasSize(20)
@@ -427,7 +427,7 @@ class UserServiceTest {
                 .userId(userInfo.getIdLong())
                 .build());
         // then
-        List<FavoriteGroupInfo.ItemInfo> items = userService.retrieveFavoriteGroup(userInfo.getIdLong(), groupInfo.getGroupId(), 0);
+        List<FavoriteGroupInfo.ItemInfo> items = userService.retrieveFavoriteGroupItems(userInfo.getIdLong(), groupInfo.getGroupId(), 0);
         assertThat(items).isEmpty();
     }
 }

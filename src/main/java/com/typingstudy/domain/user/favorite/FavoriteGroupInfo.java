@@ -31,6 +31,20 @@ public class FavoriteGroupInfo {
     }
 
     @Data
+    public static class GroupWithItemInfo {
+        private Long groupId;
+        private String groupName;
+        private Long userId;
+        private List<ItemInfo> items;
+
+        public GroupWithItemInfo(FavoriteGroup favoriteGroup) {
+            this.groupId = favoriteGroup.getId();
+            this.groupName = favoriteGroup.getGroupName();
+            this.userId = favoriteGroup.getUser().getId();
+        }
+    }
+
+    @Data
     public static class ItemInfo {
         private Long itemId;
         private Long groupId;

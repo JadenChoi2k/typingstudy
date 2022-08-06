@@ -19,7 +19,9 @@ public interface UserService {
 
     FavoriteGroupInfo.GroupInfo createFavoriteGroup(UserCommand.CreateFavoriteGroupRequest request);
 
-    List<FavoriteGroupInfo.ItemInfo> retrieveFavoriteGroup(Long userId, Long groupId, int page);
+    FavoriteGroupInfo.GroupWithItemInfo retrieveFavoriteGroup(Long groupId);
+
+    List<FavoriteGroupInfo.ItemInfo> retrieveFavoriteGroupItems(Long userId, Long groupId, int page);
 
     // 만약 group의 소유자가 요청된 user가 아니면 InvalidAccessException을 발생시킨다.
     List<FavoriteGroupInfo.GroupInfo> retrieveFavoriteGroups(Long userId, int page);

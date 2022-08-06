@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -38,6 +39,13 @@ public class UserApiController {
         );
     }
 
+    @GetMapping("/info/{userId}")
+    public CommonResponse userInfo(@PathVariable Long userId) {
+        return CommonResponse.success(
+                dtoMapper.of(userFacade.retrieve(userId))
+        );
+    }
+
     // favorites 구현 후 구현하기
     @GetMapping("/favorites")
     public CommonResponse favorites(@RequestParam(name = "page", defaultValue = "0") Integer page) {
@@ -61,10 +69,11 @@ public class UserApiController {
     public CommonResponse favoriteGroup(
             @PathVariable Long groupId,
             @RequestParam(name = "page", defaultValue = "0") Integer page) {
+        FavoriteGroupInfo.GroupWithItemInfo groupWithItemInfo = userFacade.retrieveFavoriteGroup(groupId);
+        List<FavoriteGroupInfo.ItemInfo> items = userFacade.retrieveFavoriteGroupItems(getUserId(), groupId, page);
+        groupWithItemInfo.setItems(items);
         return CommonResponse.success(
-                userFacade.retrieveFavoriteGroup(getUserId(), groupId, page).stream()
-                        .map(dtoMapper::of)
-                        .collect(Collectors.toList())
+                dtoMapper.of(groupWithItemInfo)
         );
     }
 

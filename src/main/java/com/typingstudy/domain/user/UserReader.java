@@ -15,6 +15,8 @@ public interface UserReader {
 
     List<FavoriteGroup> findAllFavoriteGroups(Long userId, int page, int size);
 
+    FavoriteGroup findFavoriteGroup(Long groupId);
+
     List<FavoriteItem> findAllFavoriteItems(Long groupId, int page, int size);
 
     boolean exists(String email);

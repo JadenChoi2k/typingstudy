@@ -25,8 +25,8 @@ import java.util.List;
 import java.util.Map;
 
 @Slf4j
-@RequestMapping("/api/v1/docs")
 @RestController
+@RequestMapping("/api/v1/docs")
 @RequiredArgsConstructor
 public class TypingDocApiController {
     private final TypingDocFacade docFacade;

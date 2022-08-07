@@ -62,10 +62,10 @@ public class TypingDoc extends BaseEntity {
         @JsonCreator
         public static Access from(String s) {
             log.info("JsonCreator 동작함. s={}", s);
-            return switch (s) {
-                case "공개" -> Access.PUBLIC;
-                case "비공개" -> Access.PRIVATE;
-                case "일부 공개" -> Access.PROTECTED;
+            return switch (s.toUpperCase()) {
+                case "공개", "PUBLIC" -> Access.PUBLIC;
+                case "비공개", "PRIVATE" -> Access.PRIVATE;
+                case "일부 공개", "PROTECTED" -> Access.PROTECTED;
                 default -> throw new InvalidParameterException("존재하지 않는 액세스 타입입니다: " + s);
             };
             //            return Access.valueOf(s.toUpperCase());

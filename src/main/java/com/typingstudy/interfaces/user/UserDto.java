@@ -50,7 +50,8 @@ public class UserDto {
     public static class AddFavoriteItemRequest {
         private Long userId;
         private Long groupId;
-        private String dcoToken;
+        @NotEmpty
+        private String docToken;
     }
 
     @Data

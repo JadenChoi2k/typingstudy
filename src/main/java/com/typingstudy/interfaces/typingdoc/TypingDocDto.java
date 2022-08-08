@@ -94,7 +94,6 @@ public class TypingDocDto {
     @Data
     public static class EditDoc {
         private Long authorId;
-        @NotNull
         private String docToken;
         @Max(50)
         private String title;

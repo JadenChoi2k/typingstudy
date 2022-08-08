@@ -76,6 +76,24 @@ public class TypingDocApiController {
         return CommonResponse.success(dtoMapper.of(doc));
     }
 
+    @PatchMapping("/{docToken}")
+    public CommonResponse editDoc(@PathVariable String docToken, @Valid @RequestBody TypingDocDto.EditDoc editRequest) {
+        editRequest.setDocToken(docToken);
+        editRequest.setAuthorId(SecurityUtils.getUserId());
+        TypingDocInfo.Main docInfo = docFacade.editDoc(dtoMapper.of(editRequest));
+        return CommonResponse.success(dtoMapper.of(docInfo));
+    }
+
+    @DeleteMapping("/{docToken}")
+    public CommonResponse removeDoc(@PathVariable String docToken) {
+        Long userId = SecurityUtils.getUserId();
+        docFacade.removeDoc(DocCommand.RemoveDocRequest.builder()
+                .docToken(docToken)
+                .authorId(userId)
+                .build());
+        return CommonResponse.ok();
+    }
+
     @GetMapping("/{docToken}/history")
     public CommonResponse docHistory(
             @PathVariable String docToken, @RequestParam(name = "page", defaultValue = "0") Integer page) {
@@ -148,6 +166,15 @@ public class TypingDocApiController {
         return CommonResponse.ok();
     }
 
+    @PostMapping("/{docToken}/obj")
+    public CommonResponse addDocObject(@PathVariable String docToken,
+                                       @Valid @RequestBody TypingDocDto.AddObject addObject) {
+        addObject.setAuthorId(SecurityUtils.getUserId());
+        addObject.setDocToken(docToken);
+        docFacade.addDocObject(dtoMapper.of(addObject));
+        return CommonResponse.ok();
+    }
+
     @GetMapping("/{docToken}/obj/{fileName}")
     public ResponseEntity<Resource> docObject(@PathVariable String docToken, @PathVariable String fileName) {
         TypingDocInfo.Main doc = docFacade.retrieveDoc(docToken);
@@ -166,32 +193,5 @@ public class TypingDocApiController {
                 .header(HttpHeaders.CONTENT_TYPE,
                         ContentDisposition.attachment().filename(docObject.getFileName()).build().toString())
                 .body(resource);
-    }
-
-    @PostMapping("/{docToken}/obj")
-    public CommonResponse addDocObject(@PathVariable String docToken,
-                                       @Valid @RequestBody TypingDocDto.AddObject addObject) {
-        addObject.setAuthorId(SecurityUtils.getUserId());
-        addObject.setDocToken(docToken);
-        docFacade.addDocObject(dtoMapper.of(addObject));
-        return CommonResponse.ok();
-    }
-
-    @PatchMapping("/{docToken}")
-    public CommonResponse editDoc(@PathVariable String docToken, @Valid @RequestBody TypingDocDto.EditDoc editRequest) {
-        editRequest.setDocToken(docToken);
-        editRequest.setAuthorId(SecurityUtils.getUserId());
-        TypingDocInfo.Main docInfo = docFacade.editDoc(dtoMapper.of(editRequest));
-        return CommonResponse.success(dtoMapper.of(docInfo));
-    }
-
-    @DeleteMapping("/{docToken}")
-    public CommonResponse removeDoc(@PathVariable String docToken) {
-        Long userId = SecurityUtils.getUserId();
-        docFacade.removeDoc(DocCommand.RemoveDocRequest.builder()
-                .docToken(docToken)
-                .authorId(userId)
-                .build());
-        return CommonResponse.ok();
     }
 }

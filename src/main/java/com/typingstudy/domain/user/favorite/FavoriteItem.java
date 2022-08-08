@@ -3,6 +3,9 @@ package com.typingstudy.domain.user.favorite;
 import com.typingstudy.domain.BaseEntity;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 
@@ -18,6 +21,7 @@ public class FavoriteItem extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "group_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private FavoriteGroup group;
 
     @Column(nullable = false)

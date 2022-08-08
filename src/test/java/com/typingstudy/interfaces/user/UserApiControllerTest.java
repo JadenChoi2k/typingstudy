@@ -94,18 +94,18 @@ class UserApiControllerTest {
         body.put("content", content);
         body.put("access", access);
         this.mockMvc.perform(
-                post("/api/v1/docs")
-                        .header("Authorization", updateAccessToken())
-                        .content(new ObjectMapper().writeValueAsString(body))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-        )
+                        post("/api/v1/docs")
+                                .header("Authorization", updateAccessToken())
+                                .content(new ObjectMapper().writeValueAsString(body))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON)
+                )
                 .andExpect(status().isOk());
     }
 
     // add 5 example docs
     private void createDocs() throws Exception {
-        for (int i = 0 ; i < 5; i++) {
+        for (int i = 0; i < 5; i++) {
             createDoc("example " + i, "this is example " + i, "PUBLIC");
         }
     }
@@ -229,9 +229,9 @@ class UserApiControllerTest {
     void user_info() throws Exception {
         Long userId = joinUser("other@naver.com", "otheruser", "mypassword1234", "https://www.mypro.com/otheruser.png");
         this.mockMvc.perform(
-                get("/api/v1/user/info/" + userId)
-                        .accept(MediaType.APPLICATION_JSON)
-        )
+                        get("/api/v1/user/info/" + userId)
+                                .accept(MediaType.APPLICATION_JSON)
+                )
                 .andExpect(status().isOk())
                 .andDo(document("user-info",
                         preprocessRequest(prettyPrint()),
@@ -285,24 +285,29 @@ class UserApiControllerTest {
     }
 
     @Test
-    @DisplayName("POST /api/v1/user/favorites/{groupId}/add")
-    void add_favorite_item() throws Exception {
-        if (myFavGroupId == null) {
-            create_favorite_group();
+    @DisplayName("GET /api/v1/user/favorites")
+    void fetch_user_favorites() throws Exception {
+        for (int i = 1; i <= 5; i++) {
+            Map<String, Object> body = new HashMap<>();
+            body.put("groupName", "favorite ex " + i);
+            this.mockMvc.perform(
+                    post("/api/v1/user/favorites/create")
+                            .content(new ObjectMapper().writeValueAsString(body))
+                            .header("Authorization", updateAccessToken())
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .accept(MediaType.APPLICATION_JSON)
+            ).andExpect(status().isOk());
         }
-        createDocs();
-        List<Map<String, Object>> docs = fetchDocs();
-        HashMap<String, Object> body = new HashMap<>();
-        body.put("docToken", docs.get(0).get("docToken"));
         this.mockMvc.perform(
-                post("/api/v1/user/favorites/" + myFavGroupId + "/add")
-                        .header("Authorization", updateAccessToken())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(body))
-                        .accept(MediaType.APPLICATION_JSON)
-        )
+                        get("/api/v1/user/favorites")
+                                .header("Authorization", updateAccessToken())
+                                .accept(MediaType.APPLICATION_JSON)
+                )
                 .andExpect(status().isOk())
-                .andDo(document("add-favorite-item"));
+                .andDo(document("fetch-user-favorite-groups",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint())
+                ));
     }
 
     @Test
@@ -318,12 +323,12 @@ class UserApiControllerTest {
             body.put("docToken", doc.get("docToken"));
             try {
                 this.mockMvc.perform(
-                        post("/api/v1/user/favorites/" + myFavGroupId + "/add")
-                                .header("Authorization", updateAccessToken())
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(new ObjectMapper().writeValueAsString(body))
-                                .accept(MediaType.APPLICATION_JSON)
-                )
+                                post("/api/v1/user/favorites/" + myFavGroupId + "/add")
+                                        .header("Authorization", updateAccessToken())
+                                        .contentType(MediaType.APPLICATION_JSON)
+                                        .content(new ObjectMapper().writeValueAsString(body))
+                                        .accept(MediaType.APPLICATION_JSON)
+                        )
                         .andExpect(status().isOk());
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -338,6 +343,107 @@ class UserApiControllerTest {
                 .andDo(document("fetch-favorite-group",
                         preprocessRequest(prettyPrint()),
                         preprocessResponse(prettyPrint())
+                ));
+    }
+
+    @Test
+    @DisplayName("POST /api/v1/user/favorites/{groupId}/add")
+    void add_favorite_item() throws Exception {
+        if (myFavGroupId == null) {
+            create_favorite_group();
+        }
+        createDocs();
+        List<Map<String, Object>> docs = fetchDocs();
+        HashMap<String, Object> body = new HashMap<>();
+        body.put("docToken", docs.get(0).get("docToken"));
+        this.mockMvc.perform(
+                        post("/api/v1/user/favorites/" + myFavGroupId + "/add")
+                                .header("Authorization", updateAccessToken())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(new ObjectMapper().writeValueAsString(body))
+                                .accept(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andDo(document("add-favorite-item",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint())
+                ));
+    }
+
+    @Test
+    @DisplayName("PATCH /api/v1/user/favorites/{groupId}")
+    void edit_favorite_group() throws Exception {
+        if (myFavGroupId == null) {
+            create_favorite_group();
+        }
+        Map<String, Object> body = new HashMap<>();
+        body.put("groupName", "edit favorite name");
+        this.mockMvc.perform(
+                        patch("/api/v1/user/favorites/" + myFavGroupId)
+                                .header("Authorization", updateAccessToken())
+                                .content(new ObjectMapper().writeValueAsString(body))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andDo(document("edit-favorite-group",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        PayloadDocumentation.responseFields(
+                                PayloadDocumentation.fieldWithPath("result")
+                                        .description("result"),
+                                PayloadDocumentation.fieldWithPath("data.groupId")
+                                        .description("id of group"),
+                                PayloadDocumentation.fieldWithPath("data.groupName")
+                                        .description("name of group"),
+                                PayloadDocumentation.fieldWithPath("data.userId")
+                                        .description("owner of user")
+                        )
+                ));
+    }
+
+    @Test
+    @DisplayName("DELETE /api/v1/user/favorites/{groupId}")
+    void delete_favorite_group() throws Exception {
+        if (myFavGroupId == null) {
+            create_favorite_group();
+        }
+        this.mockMvc.perform(
+                        delete("/api/v1/user/favorites/" + myFavGroupId)
+                                .header("Authorization", updateAccessToken())
+                                .accept(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andDo(document("delete-favorite-group",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint())
+                ));
+    }
+
+    @Test
+    @Rollback(value = false)
+    @Order(Integer.MAX_VALUE / 2 + 1)
+    @DisplayName("POST /api/v1/user/resign")
+    void resign_user() throws Exception {
+        Map<String, Object> body = new HashMap<>();
+        body.put("username", "user1234");
+        this.mockMvc.perform(
+                        post("/api/v1/user/resign")
+                                .header("Authorization", updateAccessToken())
+                                .content(new ObjectMapper().writeValueAsString(body))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andDo(document("resign-user",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        PayloadDocumentation.responseFields(
+                                PayloadDocumentation.fieldWithPath("result")
+                                        .description("result"),
+                                PayloadDocumentation.fieldWithPath("message")
+                                        .description("ok")
+                        )
                 ));
     }
 }

@@ -82,8 +82,9 @@ public class UserApiController {
                                             @Valid @RequestBody UserDto.EditFavoriteGroupRequest requestDto) {
         requestDto.setGroupId(groupId);
         requestDto.setUserId(getUserId());
+        FavoriteGroupInfo.GroupInfo groupInfo = userFacade.editFavoriteGroup(dtoMapper.of(requestDto));
         return CommonResponse.success(
-                userFacade.editFavoriteGroup(dtoMapper.of(requestDto))
+                dtoMapper.of(groupInfo)
         );
     }
 

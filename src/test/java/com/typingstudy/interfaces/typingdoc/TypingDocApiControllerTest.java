@@ -17,24 +17,20 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
-import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
-import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -54,8 +50,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class TypingDocApiControllerTest {
     private MockMvc mockMvc;
     private String authToken;
-    private boolean joinFlag = false;
-    private boolean docCreateFlag = false;
+    private static boolean joinFlag = false;
+    private static boolean docCreateFlag = false;
 
     @BeforeEach
     public void setUp(WebApplicationContext webApplicationContext,
@@ -68,8 +64,21 @@ public class TypingDocApiControllerTest {
                 .build();
     }
 
+    @BeforeEach
+    private void before_create_doc() throws Exception {
+        if (!joinFlag) {
+            joinUser();
+        }
+        if (!docCreateFlag) {
+            create_doc();
+        }
+    }
+
     private Long joinUser() throws Exception {
-        return joinUser("user1234@gmail.com", "user1234", "1q2w3e4r", "https://www.mypro.com/user1234.png");
+        log.info("try to join user, joinFlag={}", joinFlag);
+        Long userId = joinUser("user1234@gmail.com", "user1234", "1q2w3e4r", "https://www.mypro.com/user1234.png");
+        log.info("complete join, joinFlag={}", joinFlag);
+        return userId;
     }
 
     private Long joinUser(String email, String username, String password, String profileUrl) throws Exception {
@@ -122,11 +131,43 @@ public class TypingDocApiControllerTest {
     }
 
     @Test
-    void test() throws Exception {
-        this.mockMvc.perform(
-                MockMvcRequestBuilders.get("/api/v1/docs/test")
-                        .header("Authorization", updateAccessToken())
-        ).andExpect(MockMvcResultMatchers.status().isOk());
+    @Order(value = Integer.MAX_VALUE)
+    @Rollback(value = false)
+    @DisplayName("only for rollback")
+    void rollback() throws Exception {
+        // remove docs
+        List<String> docTokenList = getDocTokenList();
+        docTokenList.forEach(
+                token -> {
+                    try {
+                        this.mockMvc.perform(
+                                        delete("/api/v1/docs/" + token)
+                                                .header("Authorization", updateAccessToken())
+                                                .accept(MediaType.APPLICATION_JSON)
+                                ).andExpect(status().isOk())
+                                .andDo(document("delete-doc",
+                                        preprocessRequest(prettyPrint()),
+                                        preprocessResponse(prettyPrint())
+                                ));
+                    } catch (Exception e) {
+                        // just pass
+                    }
+                }
+        );
+        // resign user
+        try {
+            Map<String, Object> body = new HashMap<>();
+            body.put("username", "user1234");
+            this.mockMvc.perform(
+                    post("/api/v1/user/resign")
+                            .header("Authorization", updateAccessToken())
+                            .content(new ObjectMapper().writeValueAsString(body))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .accept(MediaType.APPLICATION_JSON)
+            );
+        } catch (Exception e) {
+            // if failed, just pass
+        }
     }
 
     @Test
@@ -170,9 +211,6 @@ public class TypingDocApiControllerTest {
     @Test
     @DisplayName("GET /api/v1/docs")
     void fetch_docs() throws Exception {
-        if (!docCreateFlag) {
-            create_doc();
-        }
         this.mockMvc.perform(
                         get("/api/v1/docs?page=0&sort=createdAt&direction=desc")
                                 .header("Authorization", updateAccessToken())
@@ -188,9 +226,6 @@ public class TypingDocApiControllerTest {
     @Test
     @DisplayName("PATCH /api/v1/docs/{docToken}")
     void edit_doc() throws Exception {
-        if (!docCreateFlag) {
-            create_doc();
-        }
         List<String> docTokenList = getDocTokenList();
         String token = docTokenList.get(docTokenList.size() - 1);
         Map<String, Object> body = new HashMap<>();
@@ -214,9 +249,6 @@ public class TypingDocApiControllerTest {
     @Test
     @DisplayName("DELETE /api/v1/docs/{docToken}")
     void delete_doc() throws Exception {
-        if (!docCreateFlag) {
-            create_doc();
-        }
         List<String> docTokenList = getDocTokenList();
         String token = docTokenList.get(docTokenList.size() - 1);
         this.mockMvc.perform(
@@ -233,9 +265,6 @@ public class TypingDocApiControllerTest {
     @Test
     @DisplayName("GET /api/v1/docs/bytokens")
     void fetch_docs_by_tokens() throws Exception {
-        if (!docCreateFlag) {
-            create_doc();
-        }
         List<String> docTokenList = getDocTokenList();
         LinkedMultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.put("token", docTokenList);
@@ -255,9 +284,6 @@ public class TypingDocApiControllerTest {
     @Test
     @DisplayName("GET /api/v1/docs/{docToken}")
     void fetch_one_doc() throws Exception {
-        if (!docCreateFlag) {
-            create_doc();
-        }
         List<String> docTokenList = getDocTokenList();
         this.mockMvc.perform(
                         get("/api/v1/docs/" + docTokenList.get(docTokenList.size() - 1))
@@ -273,39 +299,202 @@ public class TypingDocApiControllerTest {
     }
 
     @Test
+    @DisplayName("REQUEST /api/v1/docs/{docToken}/review")
+    void review_doc() throws Exception {
+        List<String> docTokenList = getDocTokenList();
+        String token = docTokenList.get(docTokenList.size() - 1);
+        this.mockMvc.perform(
+                        get("/api/v1/docs/" + token + "/review")
+                                .header("Authorization", updateAccessToken())
+                                .accept(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andDo(document("review-doc",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint())
+                ));
+    }
+
+    @Test
     @DisplayName("GET /api/v1/docs/{docToken}/history")
     void fetch_doc_history() throws Exception {
-
+        List<String> docTokenList = getDocTokenList();
+        String token = docTokenList.get(docTokenList.size() - 1);
+        for (int i = 0; i < 3; i++) {
+            this.mockMvc.perform(
+                            get("/api/v1/docs/" + token + "/review")
+                                    .header("Authorization", updateAccessToken())
+                                    .accept(MediaType.APPLICATION_JSON)
+                    )
+                    .andExpect(status().isOk());
+        }
+        this.mockMvc.perform(
+                        get("/api/v1/docs/" + token + "/history")
+                                .header("Authorization", updateAccessToken())
+                                .accept(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andDo(document("doc-history",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        PayloadDocumentation.responseFields(
+                                PayloadDocumentation.fieldWithPath("result")
+                                        .description("result"),
+                                PayloadDocumentation.fieldWithPath("data.size")
+                                        .description("whole size of history"),
+                                PayloadDocumentation.fieldWithPath("data.data[].reviewAt")
+                                        .description("datetime of review"),
+                                PayloadDocumentation.fieldWithPath("data.data[].docToken")
+                                        .description("token of doc")
+                        )
+                ));
     }
 
     @Test
     @DisplayName("GET /api/v1/docs/history")
     void fetch_user_doc_history() throws Exception {
-
+        if (!docCreateFlag) {
+            create_doc();
+        }
+        List<String> docTokenList = getDocTokenList();
+        docTokenList.forEach(token -> {
+            try {
+                this.mockMvc.perform(
+                                get("/api/v1/docs/" + token + "/review")
+                                        .header("Authorization", updateAccessToken())
+                                        .accept(MediaType.APPLICATION_JSON)
+                        )
+                        .andExpect(status().isOk());
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
+        this.mockMvc.perform(
+                        get("/api/v1/docs/history")
+                                .header("Authorization", updateAccessToken())
+                                .accept(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andDo(document("doc-history",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        PayloadDocumentation.responseFields(
+                                PayloadDocumentation.fieldWithPath("result")
+                                        .description("result"),
+                                PayloadDocumentation.fieldWithPath("data.size")
+                                        .description("whole size of history"),
+                                PayloadDocumentation.fieldWithPath("data.data[].reviewAt")
+                                        .description("datetime of review"),
+                                PayloadDocumentation.fieldWithPath("data.data[].docToken")
+                                        .description("token of doc")
+                        )
+                ));
     }
 
     @Test
     @DisplayName("GET /api/v1/docs/{docToken}/comment")
     void fetch_doc_comment() throws Exception {
-
+        // add comment
+        String token = getExampleToken();
+        addExampleComment(token);
+        this.mockMvc.perform(
+                        get("/api/v1/docs/" + token + "/comment")
+                                .header("Authorization", updateAccessToken())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andDo(document("fetch-doc-comment",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        PayloadDocumentation.responseFields(
+                                PayloadDocumentation.fieldWithPath("result")
+                                        .description("result"),
+                                PayloadDocumentation.fieldWithPath("data[].id")
+                                        .description("id of comment"),
+                                PayloadDocumentation.fieldWithPath("data[].docToken")
+                                        .description("token of doc"),
+                                PayloadDocumentation.fieldWithPath("data[].content")
+                                        .description("content of comment"),
+                                PayloadDocumentation.fieldWithPath("data[].userId")
+                                        .description("userId of comment"),
+                                PayloadDocumentation.fieldWithPath("data[].editedAt")
+                                        .description("datetime of edit")
+                        )
+                ));
     }
 
     @Test
     @DisplayName("POST /api/v1/docs/{docToken}/comment")
     void add_doc_comment() throws Exception {
-
+        Map<String, Object> body = new HashMap<>();
+        body.put("content", "I like this");
+        this.mockMvc.perform(
+                        post("/api/v1/docs/" + getExampleToken() + "/comment")
+                                .header("Authorization", updateAccessToken())
+                                .content(new ObjectMapper().writeValueAsString(body))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andDo(document("add-doc-comment",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        getCommentDtoResponseFields()
+                ));
     }
 
     @Test
     @DisplayName("PATCH /api/v1/docs/{docToken}/comment/{commentId}")
     void edit_doc_comment() throws Exception {
-
+        // add comment
+        String token = getExampleToken();
+        addExampleComment(token);
+        // fetch comment
+        Long commentId = getExampleCommentId(token);
+        // do test
+        Map<String, Object> body = new HashMap<>();
+        body.put("content", "I edited comment");
+        this.mockMvc.perform(
+                        patch("/api/v1/docs/" + token + "/comment/" + commentId)
+                                .header("Authorization", updateAccessToken())
+                                .content(new ObjectMapper().writeValueAsString(body))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andDo(document("edit-doc-comment",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        getCommentDtoResponseFields()
+                ));
     }
 
     @Test
     @DisplayName("DELETE /api/v1/docs/{docToken}/comment/{commentId}")
     void delete_doc_comment() throws Exception {
-
+        // add comment
+        String token = getExampleToken();
+        addExampleComment(token);
+        // fetch comment
+        Long commentId = getExampleCommentId(token);
+        // do test
+        this.mockMvc.perform(
+                        delete("/api/v1/docs/" + token + "/comment/" + commentId)
+                                .header("Authorization", updateAccessToken())
+                                .accept(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andDo(document("delete-doc-comment",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        PayloadDocumentation.responseFields(
+                                PayloadDocumentation.fieldWithPath("result")
+                                        .description("result"),
+                                PayloadDocumentation.fieldWithPath("message")
+                                        .description("ok")
+                        )
+                ));
     }
 
     @Test
@@ -347,6 +536,23 @@ public class TypingDocApiControllerTest {
         );
     }
 
+    private ResponseFieldsSnippet getCommentDtoResponseFields() {
+        return PayloadDocumentation.responseFields(
+                PayloadDocumentation.fieldWithPath("result")
+                        .description("result"),
+                PayloadDocumentation.fieldWithPath("data.docToken")
+                        .description("token of doc"),
+                PayloadDocumentation.fieldWithPath("data.id")
+                        .description("id of comment"),
+                PayloadDocumentation.fieldWithPath("data.content")
+                        .description("content of comment"),
+                PayloadDocumentation.fieldWithPath("data.userId")
+                        .description("id of user"),
+                PayloadDocumentation.fieldWithPath("data.editedAt")
+                        .description("datetime of edit")
+        );
+    }
+
     private List<String> getDocTokenList() throws Exception {
         ResultActions result = this.mockMvc.perform(
                         get("/api/v1/docs?page=0&sort=createdAt&direction=desc")
@@ -359,5 +565,39 @@ public class TypingDocApiControllerTest {
         ).get("data")).stream()
                 .map(doc -> (String) doc.get("docToken")).toList();
         return docTokenList;
+    }
+
+    private void addExampleComment(String token) throws Exception {
+        Map<String, Object> body = new HashMap<>();
+        body.put("content", "I like this");
+        this.mockMvc.perform(
+                        post("/api/v1/docs/" + token + "/comment")
+                                .header("Authorization", updateAccessToken())
+                                .content(new ObjectMapper().writeValueAsString(body))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk());
+    }
+
+    private String getExampleToken() throws Exception {
+        List<String> docTokenList = getDocTokenList();
+        return docTokenList.get(docTokenList.size() - 1);
+    }
+
+    private Long getExampleCommentId(String token) throws Exception {
+        ResultActions result = this.mockMvc.perform(
+                        get("/api/v1/docs/" + token + "/comment")
+                                .header("Authorization", updateAccessToken())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk());
+        log.info("result json={}", result.andReturn().getResponse().getContentAsString());
+        List<Map<String, Object>> comments =
+                (List<Map<String, Object>>) new JacksonJsonParser()
+                        .parseMap(result.andReturn().getResponse().getContentAsString()).get("data");
+        Long commentId = Long.parseLong(comments.get(0).get("id").toString());
+        return commentId;
     }
 }

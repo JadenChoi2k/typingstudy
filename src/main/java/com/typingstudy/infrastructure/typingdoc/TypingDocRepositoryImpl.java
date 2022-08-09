@@ -77,13 +77,15 @@ public class TypingDocRepositoryImpl implements TypingDocRepository {
 
     @Override
     public boolean validatePrivate(String docToken, Long userId) {
+        log.info("validate docToken={} userId={}", docToken, userId);
         boolean result = em.createQuery("select true from TypingDoc doc" +
                         " where doc.docToken = :docToken and (" +
-                        "   doc.access = TypingDoc.Access.PUBLIC" +
-                        "   or doc.access = TypingDoc.Access.PROTECTED" +
-                        "   or doc.authorId = :userId" +
-                        ") ", Boolean.class)
+                        "    doc.authorId = :userId" +
+                        "    or doc.access = 'PUBLIC'" +
+                        "    or doc.access = 'PROTECTED'" + // enum not work.
+                        " )", Boolean.class)
                 .setParameter("docToken", docToken)
+                .setParameter("userId", userId)
                 .getResultList().stream()
                 .findFirst() // 만약 결과값이 없으면 private 문서에 접근하는 다른 유저
                 .orElse(false);

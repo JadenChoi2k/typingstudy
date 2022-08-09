@@ -56,9 +56,9 @@ public class TypingDocApiController {
         List<TypingDocInfo.PageItem> pageResult = docFacade.retrieveDocs(tokenList);
         Long userId = SecurityUtils.getUserId();
         pageResult.forEach(item -> {
-                    if (item.getAccess() == TypingDoc.Access.PRIVATE && !item.getAuthorId().equals(userId))
-                        throw new InvalidAccessException("권한이 없습니다.");
-                });
+            if (item.getAccess() == TypingDoc.Access.PRIVATE && !item.getAuthorId().equals(userId))
+                throw new InvalidAccessException("권한이 없습니다.");
+        });
         return CommonResponse.success(
                 pageResult.stream().map(dtoMapper::of).toList()
         );
@@ -90,6 +90,15 @@ public class TypingDocApiController {
         docFacade.removeDoc(DocCommand.RemoveDocRequest.builder()
                 .docToken(docToken)
                 .authorId(userId)
+                .build());
+        return CommonResponse.ok();
+    }
+
+    @RequestMapping("/{docToken}/review")
+    public CommonResponse reviewDoc(@PathVariable String docToken) {
+        docFacade.reviewDoc(DocCommand.ReviewRequest.builder()
+                .docToken(docToken)
+                .userId(SecurityUtils.getUserId())
                 .build());
         return CommonResponse.ok();
     }
@@ -136,12 +145,13 @@ public class TypingDocApiController {
     @PostMapping("/{docToken}/comment")
     public CommonResponse addDocComment(@PathVariable String docToken,
                                         @Valid @RequestBody TypingDocDto.AddDocComment request) {
-        boolean valid = docFacade.validatePrivate(docToken, request.getUserId());
-        if (!valid) throw new InvalidAccessException("권한이 없습니다.");
         request.setDocToken(docToken);
         request.setUserId(SecurityUtils.getUserId());
+        boolean valid = docFacade.validatePrivate(docToken, request.getUserId());
+        if (!valid) throw new InvalidAccessException("권한이 없습니다.");
+        log.info("add doc comment={}", request);
         return CommonResponse.success(
-                docFacade.addComment(dtoMapper.of(request)) // private 문서 검증 포함
+                dtoMapper.of(docFacade.addComment(dtoMapper.of(request))) // private 문서 검증 포함
         );
     }
 
@@ -152,14 +162,14 @@ public class TypingDocApiController {
         request.setCommentId(commentId);
         request.setUserId(SecurityUtils.getUserId());
         return CommonResponse.success(
-                docFacade.editComment(dtoMapper.of(request))
+                dtoMapper.of(docFacade.editComment(dtoMapper.of(request)))
         );
     }
 
     @DeleteMapping("/{docToken}/comment/{commentId}")
     public CommonResponse deleteDocComment(@PathVariable String docToken,
-                                         @PathVariable Long commentId,
-                                         @Valid @RequestBody TypingDocDto.RemoveDocComment request) {
+                                           @PathVariable Long commentId) {
+        TypingDocDto.RemoveDocComment request = new TypingDocDto.RemoveDocComment();
         request.setCommentId(commentId);
         request.setUserId(SecurityUtils.getUserId());
         docFacade.removeComment(dtoMapper.of(request));

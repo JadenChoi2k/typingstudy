@@ -59,8 +59,8 @@ public class TypingDocApiControllerTest {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
                 .apply(SecurityMockMvcConfigurers.springSecurity())
                 .apply(documentationConfiguration(restDocumentation))
-                .alwaysDo(document("{method-name}",
-                        preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint())))
+//                .alwaysDo(document("{method-name}",
+//                        preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint())))
                 .build();
     }
 

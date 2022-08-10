@@ -61,8 +61,8 @@ class UserApiControllerTest {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
                 .apply(SecurityMockMvcConfigurers.springSecurity())
                 .apply(documentationConfiguration(restDocumentation))
-                .alwaysDo(document("{method-name}",
-                        preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint())))
+//                .alwaysDo(document("{method-name}",
+//                        preprocessRequest(prettyPrint()), preprocessResponse(prettyPrint())))
                 .build();
     }
 
@@ -415,6 +415,52 @@ class UserApiControllerTest {
                 )
                 .andExpect(status().isOk())
                 .andDo(document("delete-favorite-group",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint())
+                ));
+    }
+
+    @Test
+    @DisplayName("DELETE /api/v1/user/favorites/{groupId}/{itemId}")
+    void delete_favorite_item() throws Exception {
+        if (myFavGroupId == null) {
+            create_favorite_group();
+        }
+        // add favorite item
+        createDocs();
+        List<Map<String, Object>> docs = fetchDocs();
+        HashMap<String, Object> body = new HashMap<>();
+        body.put("docToken", docs.get(0).get("docToken"));
+        this.mockMvc.perform(
+                        post("/api/v1/user/favorites/" + myFavGroupId + "/add")
+                                .header("Authorization", updateAccessToken())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(new ObjectMapper().writeValueAsString(body))
+                                .accept(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andDo(document("add-favorite-item",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint())
+                ));
+        // fetch group
+        ResultActions result = this.mockMvc.perform(
+                        get("/api/v1/user/favorites/" + myFavGroupId)
+                                .header("Authorization", updateAccessToken())
+                                .accept(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk());
+        Map<String, Object> json = (Map<String, Object>) new JacksonJsonParser().parseMap(result.andReturn().getResponse().getContentAsString()).get("data");
+        List<Map<String, Object>> items = (List<Map<String, Object>>) json.get("items");
+        long itemId = Long.parseLong(items.get(0).get("itemId").toString());
+        // do test
+        this.mockMvc.perform(
+                        delete("/api/v1/user/favorites/" + myFavGroupId + "/" + itemId)
+                                .header("Authorization", updateAccessToken())
+                                .accept(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andDo(document("delete-favorite-item",
                         preprocessRequest(prettyPrint()),
                         preprocessResponse(prettyPrint())
                 ));

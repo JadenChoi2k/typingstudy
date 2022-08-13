@@ -4,14 +4,20 @@ import com.typingstudy.application.user.UserFacade;
 import com.typingstudy.common.response.CommonResponse;
 import com.typingstudy.domain.user.UserCommand;
 import com.typingstudy.domain.user.UserInfo;
+import com.typingstudy.domain.user.email.EmailService;
+import com.typingstudy.domain.user.email.EmailVerificationEntity;
 import com.typingstudy.domain.user.favorite.FavoriteGroupInfo;
 import com.typingstudy.interfaces.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -20,6 +26,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserApiController {
     private final UserFacade userFacade;
+    private final EmailService emailService;
     private final UserDtoMapper dtoMapper;
 
     // 도메인 유저의 가입 경로.
@@ -31,6 +38,38 @@ public class UserApiController {
         UserDto.Main success = dtoMapper.of(joinedUser);
         return CommonResponse.success(success);
     }
+
+    // TODO: add test
+    @GetMapping("/email/verify")
+    public CommonResponse sendVerifyCode(@RequestParam String email, HttpSession session) {
+        // send mail
+        EmailVerificationEntity emailValidationEntity = new EmailVerificationEntity(email);
+        emailService.sendVerifyCode(emailValidationEntity);
+        if (emailValidationEntity.getState() == EmailVerificationEntity.State.FAILED) {
+            return CommonResponse.fail("email send failed", "400");
+        }
+        // session
+        session.setMaxInactiveInterval(3000); // 5min
+        session.setAttribute("EMAIL_ENTITY", emailValidationEntity);
+        // construct response
+        Map<String, Object> responseBody = new HashMap<>();
+        responseBody.put("timeout", session.getMaxInactiveInterval());
+        responseBody.put("state", emailValidationEntity.getState());
+        return CommonResponse.success(responseBody);
+    }
+
+    @PostMapping("/email/verify")
+    public CommonResponse verifyEmail(@RequestParam String code, HttpSession session) {
+        var verifyEntity = (EmailVerificationEntity) session.getAttribute("EMAIL_ENTITY");
+        if (verifyEntity == null) {
+            return CommonResponse.fail("there is no verifying entity", "404");
+        }
+        if (verifyEntity.getState() == EmailVerificationEntity.State.WAITING) {
+            verifyEntity.verify(code);
+        }
+        return CommonResponse.success(verifyEntity.getState());
+    }
+
 
     @GetMapping("/me")
     public CommonResponse me() {

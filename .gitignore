@@ -38,3 +38,4 @@ out/
 ### VS Code ###
 .vscode/
 /src/main/java/indie/typingstudy/common/config/jwt/JwtProperty.java
+/src/main/resources/application-mail.yml

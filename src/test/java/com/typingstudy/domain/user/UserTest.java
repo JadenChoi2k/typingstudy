@@ -31,6 +31,25 @@ public class UserTest {
     }
 
     @Test
+    @DisplayName("이름 유효화")
+    void processUsername() {
+        // given
+        String email = "test@example.com";
+        String password = "password1234";
+        String username = "testuser with space";
+        String postUsername = "testuserwithspace";
+        String profileUrl = "profile";
+        // when
+        User user = User.createDomainUser(email, password, username, profileUrl);
+        // then
+        assertThat(user.getEmail()).isEqualTo(email);
+        assertThat(user.getPassword()).isEqualTo(password);
+        assertThat(user.getUsername()).isEqualTo(postUsername);
+        assertThat(user.getProfileUrl()).isEqualTo(profileUrl);
+        assertThat(user.isSocial()).isFalse();
+    }
+
+    @Test
     @DisplayName("로그인 시 로그인 날짜 갱신")
     void onLogin() {
         // given

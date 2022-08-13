@@ -48,7 +48,7 @@ public class User extends BaseTimeEntity {
         this.platform = platform;
         this.email = email;
         this.password = password;
-        this.username = username;
+        this.username = processUsername(username);
         this.profileUrl = profileUrl;
     }
 
@@ -59,6 +59,10 @@ public class User extends BaseTimeEntity {
     public static User createDomainUser(String email, String password, String username, String profileUrl) {
         if (email == null || password == null) throw new IllegalArgumentException("이메일 또는 비밀번호가 존재하지 않습니다.");
         return new User(SocialPlatform.DOMAIN, email, password, username, profileUrl);
+    }
+
+    private static String processUsername(String username) {
+        return username.replaceAll("[^가-힣A-Za-z\\d]+", "");
     }
 
     public boolean isSocial() {

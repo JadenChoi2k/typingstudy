@@ -21,7 +21,7 @@ public class UserDto {
         @Email(message = "이메일 형식으로 기재해주시기 바랍니다")
         private String email;
         @Max(value = 30, message = "비밀번호는 30자 이하입니다.")
-        @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$",
+        @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)[^가-힣ㄱ-ㅎ]{8,30}$",
                 message = "비밀번호는 8자 이상의 영문자, 숫자 조합으로 이루어집니다.")
         private String password;
         @Max(value = 20, message = "유저 이름은 20자 이하입니다")

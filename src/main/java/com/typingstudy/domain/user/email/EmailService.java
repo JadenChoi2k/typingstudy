@@ -1,5 +1,6 @@
 package com.typingstudy.domain.user.email;
 
+import com.typingstudy.domain.user.UserReader;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,12 +12,17 @@ import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class EmailService {
 
-    private JavaMailSender emailSender;
+    private final JavaMailSender emailSender;
+    private final UserReader userReader;
 
     public void sendVerifyCode(EmailVerificationEntity verificationEntity) {
+        if (userReader.exists(verificationEntity.getEmail())) {
+            verificationEntity.onOverlapped();
+            return;
+        }
         log.info("send mail to: {}", verificationEntity.getEmail());
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom("jadenchoi2k@gmail.com");

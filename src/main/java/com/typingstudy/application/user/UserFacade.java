@@ -3,7 +3,12 @@ package com.typingstudy.application.user;
 import com.typingstudy.domain.user.UserCommand;
 import com.typingstudy.domain.user.UserInfo;
 import com.typingstudy.domain.user.UserService;
+import com.typingstudy.domain.user.email.EmailService;
+import com.typingstudy.domain.user.email.EmailVerificationEntity;
 import com.typingstudy.domain.user.favorite.FavoriteGroupInfo;
+import com.typingstudy.domain.user.profile.ProfileImage;
+import com.typingstudy.domain.user.profile.ProfileImageInfo;
+import com.typingstudy.domain.user.profile.ProfileImageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -17,6 +22,8 @@ import static com.typingstudy.domain.user.UserCommand.*;
 @RequiredArgsConstructor
 public class UserFacade {
     private final UserService userService;
+    private final EmailService emailService;
+    private final ProfileImageService profileImageService;
 
     public boolean login(LoginRequest request) {
         return userService.login(request);
@@ -68,5 +75,19 @@ public class UserFacade {
 
     public void removeFavoriteItem(RemoveFavoriteItemRequest request) {
         userService.removeFavoriteItem(request);
+    }
+
+    /* EmailService */
+    public void sendVerifyCode(EmailVerificationEntity verificationEntity) {
+        emailService.sendVerifyCode(verificationEntity);
+    }
+
+    /* ProfileImageService */
+    public void saveProfileImage(UserCommand.AddProfileImageRequest request) {
+        profileImageService.save(request);
+    }
+
+    public ProfileImageInfo findProfileImage(Long userId) {
+        return profileImageService.findByUserId(userId);
     }
 }

@@ -4,6 +4,7 @@ import com.typingstudy.common.exception.InvalidParameterException;
 import lombok.Getter;
 
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Getter
 public class EmailVerificationEntity {
@@ -12,14 +13,18 @@ public class EmailVerificationEntity {
     private State state; // true: 인증됨, false: 아직 인증 안됨
 
     public enum State {
-        NONE, WAITING, VERIFIED, FAILED
+        NONE, OVERLAPPED, WAITING, VERIFIED, FAILED
     }
 
     public EmailVerificationEntity(String email) {
         if (email == null || email.isEmpty()) throw new InvalidParameterException("email must not be empty");
         this.email = email;
-        this.verifyCode = Integer.toString(Math.abs(new Random().nextInt())).substring(0, 6);
+        this.verifyCode = Integer.toString(ThreadLocalRandom.current().nextInt(100000, 1000000)).substring(0, 6);
         this.state = State.NONE;
+    }
+
+    public State onOverlapped() {
+        return this.state = State.OVERLAPPED;
     }
 
     public State onSend() {

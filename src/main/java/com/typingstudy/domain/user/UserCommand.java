@@ -17,7 +17,12 @@ public class UserCommand {
         private String email;
         private String password;
         private String username;
-        private String profileUrl;
+        private String extension;
+        private byte[] profileImage;
+
+        public boolean hasProfileImage() {
+            return extension != null && !extension.isEmpty() && profileImage != null && profileImage.length > 0;
+        }
     }
 
     @Data
@@ -65,5 +70,13 @@ public class UserCommand {
     public static class RemoveFavoriteItemRequest {
         private Long userId;
         private Long itemId;
+    }
+
+    @Data
+    @Builder
+    public static class AddProfileImageRequest {
+        private Long userId;
+        private String extension;
+        private byte[] data;
     }
 }

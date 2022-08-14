@@ -4,15 +4,20 @@ import com.typingstudy.application.user.UserFacade;
 import com.typingstudy.common.response.CommonResponse;
 import com.typingstudy.domain.user.UserCommand;
 import com.typingstudy.domain.user.UserInfo;
-import com.typingstudy.domain.user.email.EmailService;
 import com.typingstudy.domain.user.email.EmailVerificationEntity;
 import com.typingstudy.domain.user.favorite.FavoriteGroupInfo;
+import com.typingstudy.domain.user.profile.ProfileImage;
+import com.typingstudy.domain.user.profile.ProfileImageInfo;
 import com.typingstudy.interfaces.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import java.util.HashMap;
@@ -26,14 +31,21 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserApiController {
     private final UserFacade userFacade;
-    private final EmailService emailService;
     private final UserDtoMapper dtoMapper;
 
     // 도메인 유저의 가입 경로.
     // 소셜 유저는 oauth 패키지에서 자동 가입
     @PostMapping("/join")
-    public CommonResponse join(@RequestBody UserDto.JoinRequest requestDto) {
+    public CommonResponse join(@Valid @RequestBody UserDto.JoinRequest requestDto) {
         UserCommand.DomainUserRegisterRequest registerRequest = dtoMapper.of(requestDto);
+        // save profile image
+        if (registerRequest.hasProfileImage()) {
+            userFacade.saveProfileImage(UserCommand.AddProfileImageRequest.builder()
+                    .userId(SecurityUtils.getUserId())
+                    .extension(registerRequest.getExtension())
+                    .data(registerRequest.getProfileImage())
+                    .build());
+        }
         UserInfo joinedUser = userFacade.join(registerRequest);
         UserDto.Main success = dtoMapper.of(joinedUser);
         return CommonResponse.success(success);
@@ -44,9 +56,12 @@ public class UserApiController {
     public CommonResponse sendVerifyCode(@RequestParam String email, HttpSession session) {
         // send mail
         EmailVerificationEntity emailValidationEntity = new EmailVerificationEntity(email);
-        emailService.sendVerifyCode(emailValidationEntity);
+        userFacade.sendVerifyCode(emailValidationEntity);
         if (emailValidationEntity.getState() == EmailVerificationEntity.State.FAILED) {
-            return CommonResponse.fail("email send failed", "400");
+            return CommonResponse.fail("email send failed", "EMAIL_SEND_FAIL");
+        }
+        if (emailValidationEntity.getState() == EmailVerificationEntity.State.OVERLAPPED) {
+            return CommonResponse.fail("email overlapped", "EMAIL_OVERLAPPED");
         }
         // session
         session.setMaxInactiveInterval(3000); // 5min
@@ -62,12 +77,23 @@ public class UserApiController {
     public CommonResponse verifyEmail(@RequestParam String code, HttpSession session) {
         var verifyEntity = (EmailVerificationEntity) session.getAttribute("EMAIL_ENTITY");
         if (verifyEntity == null) {
-            return CommonResponse.fail("there is no verifying entity", "404");
+            return CommonResponse.fail("there is no verifying entity", "NO_ENTITY");
         }
         if (verifyEntity.getState() == EmailVerificationEntity.State.WAITING) {
             verifyEntity.verify(code);
         }
         return CommonResponse.success(verifyEntity.getState());
+    }
+
+    // TODO: add test
+    @GetMapping("/me/profile")
+    public ResponseEntity<Resource> profile() {
+        ProfileImageInfo profileImageInfo = userFacade.findProfileImage(SecurityUtils.getUserId());
+        ByteArrayResource resource = new ByteArrayResource(profileImageInfo.getData());
+        return ResponseEntity.ok()
+                .contentLength(resource.contentLength())
+                .header(HttpHeaders.CONTENT_TYPE, ContentDisposition.attachment().filename(profileImageInfo.getExtension()).build().toString())
+                .body(resource);
     }
 
 

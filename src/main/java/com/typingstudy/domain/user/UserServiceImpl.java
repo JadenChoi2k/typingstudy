@@ -48,12 +48,12 @@ public class UserServiceImpl implements UserService {
                 request.getEmail(),
                 request.getPassword(),
                 request.getUsername(),
-                request.getProfileUrl()
+                request.hasProfileImage() ? "/api/v1/user/me/profile" : "/default_profile_image.png"
         );
         return UserInfo.of(userStore.store(user));
     }
 
-//    @Override
+    //    @Override
 //    public UserInfo join(SocialUserRegisterRequest request) {
 //        log.info("social join request: {}", request);
 //        User user = User.createSocialLoginUser(

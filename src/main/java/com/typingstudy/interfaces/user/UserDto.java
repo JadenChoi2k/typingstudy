@@ -1,6 +1,7 @@
 package com.typingstudy.interfaces.user;
 
 import lombok.Data;
+import org.springframework.security.crypto.encrypt.BytesEncryptor;
 
 import javax.validation.constraints.*;
 import java.time.LocalDateTime;
@@ -28,7 +29,9 @@ public class UserDto {
         @Pattern(regexp = "[가-힣A-Za-z][가-힣A-Za-z\\d]+",
                 message = "유저 이름은 2자 이상의 영문자, 한글, 숫자로 이루어집니다.")
         private String username;
-        private String profileUrl;
+        // profile image info
+        private String extension;
+        private Byte[] profileImage; // if null, user uses default profile
     }
 
     @Data

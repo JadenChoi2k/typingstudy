@@ -168,13 +168,9 @@ public class TypingDocServiceImpl implements TypingDocService {
 
     @Override
     public List<TypingDocInfo.PageItem> recommendedReview(Long userId, int page) {
-        List<TypingDocInfo.PageItem> ret = new ArrayList<>();
-        reviewRecommender.recommend(userId, page).forEach((pair) -> {
-            var item = new TypingDocInfo.PageItem(pair.getFirst());
-            item.setReviewCount(pair.getSecond());
-            ret.add(item);
-        });
-        return ret;
+        return reviewRecommender.recommend(userId, page).stream()
+                .map(TypingDocInfo.PageItem::new)
+                .toList();
     }
 
     @Override

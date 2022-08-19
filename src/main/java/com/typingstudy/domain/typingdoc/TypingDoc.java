@@ -49,6 +49,9 @@ public class TypingDoc extends BaseEntity {
     @ColumnDefault(value = "0")
     private Integer views;
 
+    @ColumnDefault(value = "0")
+    private Integer reviewCount;
+
     private LocalDateTime lastStudyDate;
 
     private LocalDateTime editedAt;
@@ -87,6 +90,7 @@ public class TypingDoc extends BaseEntity {
         this.content = content;
         this.access = access;
         this.views = 0;
+        this.reviewCount = 0;
     }
 
     // 조회수 증가.
@@ -97,6 +101,7 @@ public class TypingDoc extends BaseEntity {
     // 복습한 날짜 갱신. history 객체를 반환한다.
     public DocReviewHistory review() {
         this.lastStudyDate = LocalDateTime.now();
+        this.reviewCount += 1;
         return new DocReviewHistory(this);
     }
 

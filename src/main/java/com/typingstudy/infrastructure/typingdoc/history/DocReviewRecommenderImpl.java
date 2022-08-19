@@ -3,6 +3,7 @@ package com.typingstudy.infrastructure.typingdoc.history;
 import com.typingstudy.domain.typingdoc.TypingDoc;
 import com.typingstudy.domain.typingdoc.history.DocReviewRecommender;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Component;
 
@@ -11,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class DocReviewRecommenderImpl implements DocReviewRecommender {
@@ -23,31 +25,24 @@ public class DocReviewRecommenderImpl implements DocReviewRecommender {
      * 복습 횟수 2회 -> 작성날로부터 7일 ~ 10일
      * 복습 횟수 3회 -> 작성날로부터 30일 ~ 33일
      * 제약조건: db가 datediff 함수를 지원해야 함.
+     *
      * @param userId
      * @param page
      * @return
      */
     @Override
-    public List<Pair<TypingDoc, Integer>> recommend(Long userId, int page) {
-        List<Object[]> resultList = em.createQuery("select" +
-                        " doc, (select count(hist) from DocReviewHistory hist where hist.doc.docToken = doc.docToken) as _count" +
-                        " from TypingDoc doc" +
+    public List<TypingDoc> recommend(Long userId, int page) {
+        return em.createQuery("select" +
+                        " doc from TypingDoc doc" +
                         " where doc.authorId = :userId and (" +
-                        " (_count = 0 and FUNCTION('datediff', 'day', doc.editedAt, current_timestamp) < 1)" +
-                        " or (_count = 1 and FUNCTION('datediff', 'day', doc.editedAt, current_timestamp) < 3)" +
-                        " or (_count = 2 and FUNCTION('datediff', 'day', doc.editedAt, current_timestamp) < 10)" +
-                        " or (_count = 3 and FUNCTION('datediff', 'day', doc.editedAt, current_timestamp) < 33)" +
-                        ")")
+                        " (doc.reviewCount = 0 and FUNCTION('datediff', 'day', doc.createdAt, current_timestamp) < 2)" +
+                        " or (doc.reviewCount = 1 and FUNCTION('datediff', 'day', doc.createdAt, current_timestamp) < 4)" +
+                        " or (doc.reviewCount = 2 and FUNCTION('datediff', 'day', doc.createdAt, current_timestamp) < 11)" +
+                        " or (doc.reviewCount = 3 and FUNCTION('datediff', 'day', doc.createdAt, current_timestamp) < 34)" +
+                        ") order by doc.createdAt asc", TypingDoc.class)
                 .setParameter("userId", userId)
                 .setMaxResults(20)
                 .setFirstResult(page * 20)
                 .getResultList();
-        List<Pair<TypingDoc, Integer>> returnList = new ArrayList<>();
-        for (Object[] row: resultList) {
-            TypingDoc doc = (TypingDoc) row[0];
-            Integer count = (Integer) row[1];
-            returnList.add(Pair.of(doc, count));
-        }
-        return returnList;
     }
 }

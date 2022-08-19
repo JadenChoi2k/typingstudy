@@ -7,5 +7,5 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 public interface DocReviewRecommender {
-    List<Pair<TypingDoc, Integer>> recommend(Long userId, int page);
+    List<TypingDoc> recommend(Long userId, int page);
 }

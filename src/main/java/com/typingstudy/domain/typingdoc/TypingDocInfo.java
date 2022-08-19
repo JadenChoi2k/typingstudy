@@ -19,7 +19,7 @@ public class TypingDocInfo {
         private TypingDoc.Access access;
         private List<DocCommentInfo.Main> comments; // set manually
         private Integer views;
-        private Integer reviewCount; // set manually
+        private Integer reviewCount;
         private LocalDateTime lastStudyDate;
         private LocalDateTime createDate;
         private LocalDateTime editDate;
@@ -32,6 +32,7 @@ public class TypingDocInfo {
                     .content(doc.getContent())
                     .access(doc.getAccess())
                     .views(doc.getViews())
+                    .reviewCount(doc.getReviewCount())
                     .lastStudyDate(doc.getLastStudyDate())
                     .createDate(doc.getCreatedAt())
                     .editDate(doc.getEditedAt())
@@ -47,7 +48,7 @@ public class TypingDocInfo {
         private String content;
         private TypingDoc.Access access;
         private Integer views;
-        private Integer reviewCount; // set manually
+        private Integer reviewCount;
         private LocalDateTime lastStudyDate;
         private LocalDateTime editDate;
         private LocalDateTime createDate;
@@ -59,6 +60,7 @@ public class TypingDocInfo {
             this.content = doc.getShortContent();
             this.access = doc.getAccess();
             this.views = doc.getViews();
+            this.reviewCount = doc.getReviewCount();
             this.lastStudyDate = doc.getLastStudyDate();
             this.editDate = doc.getEditedAt();
             this.createDate = doc.getCreatedAt();

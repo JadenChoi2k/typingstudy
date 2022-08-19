@@ -21,7 +21,7 @@ public class FavoriteRepositoryImpl implements FavoriteRepository {
     @Transactional(readOnly = true)
     public List<FavoriteGroup> findAllFavoriteGroups(Long userId, int page, int size) {
         return em.createQuery("select fg from FavoriteGroup fg " +
-                        "where fg.user.id = :userId", FavoriteGroup.class)
+                        "where fg.user.id = :userId order by fg.editedAt desc", FavoriteGroup.class)
                 .setParameter("userId", userId)
                 .setMaxResults(size)
                 .setFirstResult(page * size)
@@ -54,7 +54,7 @@ public class FavoriteRepositoryImpl implements FavoriteRepository {
     @Override
     public List<FavoriteGroup> findAllGroups(Long userId) {
         return em.createQuery("select g from FavoriteGroup g" +
-                " where g.user.id = :userId", FavoriteGroup.class)
+                " where g.user.id = :userId order by g.editedAt desc", FavoriteGroup.class)
                 .setParameter("userId", userId)
                 .getResultList();
     }
@@ -64,6 +64,14 @@ public class FavoriteRepositoryImpl implements FavoriteRepository {
         return em.createQuery("select item from FavoriteItem item" +
                 " where item.group.id = :groupId", FavoriteItem.class)
                 .setParameter("groupId", groupId)
+                .getResultList();
+    }
+
+    @Override
+    public List<FavoriteGroup> findAllContainsDoc(String docToken) {
+        return em.createQuery("select distinct item.group from FavoriteItem item" +
+                        " where item.docToken = :docToken", FavoriteGroup.class)
+                .setParameter("docToken", docToken)
                 .getResultList();
     }
 }

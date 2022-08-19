@@ -22,6 +22,7 @@ public class TypingDocDto {
         private TypingDoc.Access access;
         private List<DocCommentInfo.Main> comments;
         private Integer views;
+        private Integer reviewCount;
         private LocalDateTime lastStudyDate;
         private LocalDateTime createDate;
         private LocalDateTime editDate;
@@ -32,8 +33,10 @@ public class TypingDocDto {
         private String docToken;
         private Long authorId;
         private String title;
+        private String content; // 길이는 100을 넘지 않는다.
         private TypingDoc.Access access;
         private Integer views;
+        private Integer reviewCount;
         private LocalDateTime lastStudyDate;
         private LocalDateTime createDate;
         private LocalDateTime editDate;
@@ -59,7 +62,7 @@ public class TypingDocDto {
     @Data
     public static class CreateDoc {
         private Long authorId;
-        @Size(min = 1, max = 50)
+        @Size(min = 1, max = 127)
         private String title;
         @Size(min = 1, max = 4095)
         private String content;

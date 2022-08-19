@@ -41,7 +41,7 @@ class UserServiceTest {
                 .email(email)
                 .password(password)
                 .username(username)
-                .profileUrl(profileUrl)
+                .profileImage(null)
                 .build());
     }
 
@@ -67,7 +67,7 @@ class UserServiceTest {
                 .email(email)
                 .password(password)
                 .username(username)
-                .profileUrl(profileUrl)
+                .profileImage(null)
                 .build());
         // then
         assertThat(userInfo.getId()).isNotNull();

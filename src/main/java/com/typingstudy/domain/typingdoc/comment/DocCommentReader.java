@@ -6,4 +6,6 @@ public interface DocCommentReader {
     List<DocComment> findAll(String docToken);
 
     DocComment findById(Long id);
+
+    List<DocComment> findAllRelated(Long userId, int page);
 }

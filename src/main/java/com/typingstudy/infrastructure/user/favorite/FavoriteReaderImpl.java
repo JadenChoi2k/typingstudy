@@ -29,4 +29,9 @@ public class FavoriteReaderImpl implements FavoriteReader {
     public List<FavoriteItem> findAllItems(Long groupId) {
         return favoriteRepository.findAllItems(groupId);
     }
+
+    @Override
+    public List<FavoriteGroup> findAllGroupContainsDoc(String docToken) {
+        return favoriteRepository.findAllContainsDoc(docToken);
+    }
 }

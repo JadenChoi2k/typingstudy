@@ -1,6 +1,7 @@
 package com.typingstudy.domain;
 
 import lombok.Getter;
+import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -17,5 +18,6 @@ public abstract class BaseTimeEntity {
     private LocalDateTime createdAt;
 
     @LastModifiedDate
+    @Setter
     private LocalDateTime editedAt;
 }

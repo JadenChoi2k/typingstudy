@@ -21,7 +21,6 @@ public class FavoriteItem extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "group_id")
-    @OnDelete(action = OnDeleteAction.CASCADE)
     private FavoriteGroup group;
 
     @Column(nullable = false)

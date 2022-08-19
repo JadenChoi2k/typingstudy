@@ -119,11 +119,28 @@ public class TypingDocApiController {
     public CommonResponse history(@RequestParam(name = "page", defaultValue = "0") int page) {
         Long userId = SecurityUtils.getUserId();
         long historyCount = docFacade.reviewCountByUserId(userId);
-        List<DocReviewHistoryInfo> historyList = docFacade.reviewHistoryByUserId(userId);
+        List<DocReviewHistoryInfo> historyList = docFacade.reviewHistoryByUserId(userId, page);
         Map<String, Object> data = new HashMap<>();
         data.put("data", historyList.stream().map(dtoMapper::of).toList());
         data.put("size", historyCount);
         return CommonResponse.success(data);
+    }
+
+    @GetMapping("/review/recommend")
+    public CommonResponse recommendReview(@RequestParam(name = "page", defaultValue = "0") int page) {
+        List<TypingDocInfo.PageItem> pageItems = docFacade.recommendedReview(SecurityUtils.getUserId(), page);
+        return CommonResponse.success(pageItems);
+    }
+
+    // 자신이 작성했거나, 자신의 문서에 있는 코멘트들을 가져온다.
+    @GetMapping("/comments")
+    public CommonResponse relatedComments(@RequestParam(name = "page", defaultValue = "0") Integer page) {
+        List<DocCommentInfo.Main> comments = docFacade.retrieveRelatedComments(SecurityUtils.getUserId(), page);
+        return CommonResponse.success(
+                comments.stream()
+                        .map(dtoMapper::of)
+                        .toList()
+        );
     }
 
     @GetMapping("/{docToken}/comment")
@@ -147,9 +164,9 @@ public class TypingDocApiController {
                                         @Valid @RequestBody TypingDocDto.AddDocComment request) {
         request.setDocToken(docToken);
         request.setUserId(SecurityUtils.getUserId());
+        log.info("add doc comment={}", request);
         boolean valid = docFacade.validatePrivate(docToken, request.getUserId());
         if (!valid) throw new InvalidAccessException("권한이 없습니다.");
-        log.info("add doc comment={}", request);
         return CommonResponse.success(
                 dtoMapper.of(docFacade.addComment(dtoMapper.of(request))) // private 문서 검증 포함
         );

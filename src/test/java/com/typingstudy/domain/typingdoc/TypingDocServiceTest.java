@@ -351,7 +351,7 @@ public class TypingDocServiceTest {
         List<List<DocReviewHistoryInfo>> historyInfoList = pageItems.stream()
                 .map(item -> docService.reviewHistoryByToken(item.getDocToken(), 0)).toList();
         // when
-        List<DocReviewHistoryInfo> history = docService.reviewHistoryByUserId(userId);
+        List<DocReviewHistoryInfo> history = docService.reviewHistoryByUserId(userId, 0);
         long reviewCount = docService.reviewCountByUserId(userId);
         // then
         assertThat(reviewCount).isEqualTo(pageItems.size());

@@ -83,6 +83,17 @@ public class UserDto {
         private Long groupId;
         private String groupName;
         private Long userId;
+        private LocalDateTime lastEdited;
+        private LocalDateTime created;
+    }
+
+    @Data
+    public static class FavoriteGroupContainsDoc {
+        private Long groupId;
+        private String groupName;
+        private Long userId;
+        private String docToken;
+        private boolean result;
     }
 
     @Data
@@ -103,5 +114,6 @@ public class UserDto {
         private Integer views;
         private LocalDateTime lastStudyDate;
         private LocalDateTime createDate;
+        private LocalDateTime editDate;
     }
 }

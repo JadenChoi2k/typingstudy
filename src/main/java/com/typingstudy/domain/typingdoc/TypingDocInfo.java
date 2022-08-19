@@ -17,8 +17,9 @@ public class TypingDocInfo {
         private String title;
         private String content;
         private TypingDoc.Access access;
-        private List<DocCommentInfo.Main> comments;
+        private List<DocCommentInfo.Main> comments; // set manually
         private Integer views;
+        private Integer reviewCount; // set manually
         private LocalDateTime lastStudyDate;
         private LocalDateTime createDate;
         private LocalDateTime editDate;
@@ -43,8 +44,10 @@ public class TypingDocInfo {
         private String docToken;
         private Long authorId;
         private String title;
+        private String content;
         private TypingDoc.Access access;
         private Integer views;
+        private Integer reviewCount; // set manually
         private LocalDateTime lastStudyDate;
         private LocalDateTime editDate;
         private LocalDateTime createDate;
@@ -53,6 +56,7 @@ public class TypingDocInfo {
             this.docToken = doc.getDocToken();
             this.authorId = doc.getAuthorId();
             this.title = doc.getTitle();
+            this.content = doc.getShortContent();
             this.access = doc.getAccess();
             this.views = doc.getViews();
             this.lastStudyDate = doc.getLastStudyDate();

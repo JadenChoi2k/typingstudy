@@ -6,7 +6,6 @@ import com.typingstudy.domain.user.UserService;
 import com.typingstudy.domain.user.email.EmailService;
 import com.typingstudy.domain.user.email.EmailVerificationEntity;
 import com.typingstudy.domain.user.favorite.FavoriteGroupInfo;
-import com.typingstudy.domain.user.profile.ProfileImage;
 import com.typingstudy.domain.user.profile.ProfileImageInfo;
 import com.typingstudy.domain.user.profile.ProfileImageService;
 import lombok.RequiredArgsConstructor;
@@ -53,6 +52,10 @@ public class UserFacade {
         return userService.retrieveFavoriteGroups(userId, page);
     }
 
+    public List<FavoriteGroupInfo.ContainsDoc> retrieveContainsDoc(Long userId, String docToken) {
+        return userService.retrieveContainsDoc(userId, docToken);
+    }
+
     public FavoriteGroupInfo.GroupWithItemInfo retrieveFavoriteGroup(Long groupId) {
         return userService.retrieveFavoriteGroup(groupId);
     }
@@ -75,6 +78,10 @@ public class UserFacade {
 
     public void removeFavoriteItem(RemoveFavoriteItemRequest request) {
         userService.removeFavoriteItem(request);
+    }
+
+    public void removeFavoriteItemByDocToken(Long userId, Long groupId, String docToken) {
+        userService.removeAllItemsByDocToken(userId, groupId, docToken);
     }
 
     /* EmailService */

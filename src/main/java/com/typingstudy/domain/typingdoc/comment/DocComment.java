@@ -5,6 +5,8 @@ import com.typingstudy.domain.typingdoc.TypingDoc;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 
@@ -24,6 +26,7 @@ public class DocComment extends BaseTimeEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "doc_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private TypingDoc doc;
 
     @Column(length = 1023)

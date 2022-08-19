@@ -9,14 +9,21 @@ import com.typingstudy.domain.typingdoc.comment.DocCommentStore;
 import com.typingstudy.domain.typingdoc.history.DocReviewHistory;
 import com.typingstudy.domain.typingdoc.history.DocReviewHistoryInfo;
 import com.typingstudy.domain.typingdoc.history.DocReviewHistoryReader;
+import com.typingstudy.domain.typingdoc.history.DocReviewRecommender;
 import com.typingstudy.domain.typingdoc.object.DocObjectInfo;
+import com.typingstudy.domain.user.favorite.FavoriteStore;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.tomcat.jni.Local;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -24,8 +31,10 @@ public class TypingDocServiceImpl implements TypingDocService {
     private final TypingDocReader typingDocReader;
     private final DocCommentReader docCommentReader;
     private final DocReviewHistoryReader historyReader;
+    private final DocReviewRecommender reviewRecommender;
     private final TypingDocStore typingDocStore;
     private final DocCommentStore docCommentStore;
+    private final FavoriteStore favoriteStore;
 
     void validateDoc(TypingDoc doc, Long authorId) {
         if (doc == null) {
@@ -64,6 +73,7 @@ public class TypingDocServiceImpl implements TypingDocService {
         TypingDoc doc = typingDocReader.findByToken(request.getDocToken());
         validateDoc(doc, request.getAuthorId());
         typingDocStore.remove(doc);
+        favoriteStore.removeAllItemsByDocToken(request.getDocToken());
     }
 
     @Override
@@ -114,6 +124,9 @@ public class TypingDocServiceImpl implements TypingDocService {
     @Transactional(readOnly = true)
     public TypingDocInfo.Main retrieveDoc(String docToken) {
         TypingDocInfo.Main docInfo = TypingDocInfo.Main.of(typingDocReader.findByToken(docToken));
+        long reviewCount = historyReader.countsByToken(docToken);
+        docInfo.setReviewCount((int) reviewCount);
+        log.info("[{}] review count: {}", docToken, reviewCount);
         docInfo.setComments(
                 docCommentReader.findAll(docToken).stream()
                         .map(comment -> DocCommentInfo.Main.of(comment, docToken))
@@ -126,13 +139,7 @@ public class TypingDocServiceImpl implements TypingDocService {
     public TypingDocInfo.Main viewDoc(String docToken) {
         TypingDoc doc = typingDocReader.findByToken(docToken);
         doc.onView();
-        TypingDocInfo.Main docInfo = TypingDocInfo.Main.of(doc);
-        docInfo.setComments(
-                docCommentReader.findAll(docToken).stream()
-                        .map(comment -> DocCommentInfo.Main.of(comment, docToken))
-                        .collect(Collectors.toList())
-        );
-        return docInfo;
+        return retrieveDoc(docToken);
     }
 
     @Override
@@ -153,10 +160,21 @@ public class TypingDocServiceImpl implements TypingDocService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<DocReviewHistoryInfo> reviewHistoryByUserId(Long userId) {
-        return historyReader.findAllByUserId(userId).stream()
+    public List<DocReviewHistoryInfo> reviewHistoryByUserId(Long userId, int page) {
+        return historyReader.findAllByUserId(userId, page).stream()
                 .map(DocReviewHistoryInfo::of)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<TypingDocInfo.PageItem> recommendedReview(Long userId, int page) {
+        List<TypingDocInfo.PageItem> ret = new ArrayList<>();
+        reviewRecommender.recommend(userId, page).forEach((pair) -> {
+            var item = new TypingDocInfo.PageItem(pair.getFirst());
+            item.setReviewCount(pair.getSecond());
+            ret.add(item);
+        });
+        return ret;
     }
 
     @Override
@@ -180,6 +198,13 @@ public class TypingDocServiceImpl implements TypingDocService {
     }
 
     @Override
+    public List<DocCommentInfo.Main> retrieveRelatedComments(Long userId, int page) {
+        return docCommentReader.findAllRelated(userId, page).stream()
+                .map(comment -> DocCommentInfo.Main.of(comment, comment.getDoc().getDocToken()))
+                .toList();
+    }
+
+    @Override
     public DocCommentInfo.Main addComment(DocCommand.AddCommentRequest request) {
         TypingDoc doc = typingDocReader.findByToken(request.getDocToken());
         if (doc.getAccess() == TypingDoc.Access.PRIVATE &&
@@ -187,6 +212,7 @@ public class TypingDocServiceImpl implements TypingDocService {
             throw new InvalidAccessException("권한이 없습니다.");
         }
         DocComment comment = docCommentStore.store(doc.createComment(request.getUserId(), request.getContent()));
+        log.info("코멘트 등록: {}", comment.getId());
         return DocCommentInfo.Main.of(comment);
     }
 

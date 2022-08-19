@@ -5,6 +5,8 @@ import com.typingstudy.domain.typingdoc.TypingDoc;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 
@@ -24,6 +26,7 @@ public class DocReviewHistory extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "doc_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private TypingDoc doc;
 
     public DocReviewHistory(TypingDoc doc) {

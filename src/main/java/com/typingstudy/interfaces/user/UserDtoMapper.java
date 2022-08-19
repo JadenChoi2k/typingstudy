@@ -32,6 +32,8 @@ public interface UserDtoMapper {
 
     UserDto.FavoriteItemDto of(FavoriteGroupInfo.ItemInfo itemInfo);
 
+    UserDto.FavoriteGroupContainsDoc of(FavoriteGroupInfo.ContainsDoc containsDoc);
+
     UserDto.FavoriteGroupWithItemDto of(FavoriteGroupInfo.GroupWithItemInfo groupWithItemInfo);
 
     UserDto.FavoriteGroupDto of(FavoriteGroupInfo.GroupInfo groupInfo);

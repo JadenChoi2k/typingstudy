@@ -5,6 +5,8 @@ import com.typingstudy.domain.typingdoc.TypingDoc;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import java.nio.file.Files;
@@ -25,6 +27,7 @@ public class DocObject extends BaseTimeEntity {
 
     @OneToOne
     @JoinColumn(name = "doc_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private TypingDoc doc;
 
     @Column(nullable = false)

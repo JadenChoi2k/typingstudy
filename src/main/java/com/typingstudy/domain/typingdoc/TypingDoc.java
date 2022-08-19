@@ -35,7 +35,7 @@ public class TypingDoc extends BaseEntity {
     @Column(nullable = false)
     private Long authorId;
 
-    @Column(length = 50, nullable = false)
+    @Column(length = 127, nullable = false)
     private String title;
 
     // 가장 처음 작성한 내용
@@ -50,6 +50,8 @@ public class TypingDoc extends BaseEntity {
     private Integer views;
 
     private LocalDateTime lastStudyDate;
+
+    private LocalDateTime editedAt;
 
     @Slf4j
     @Getter
@@ -103,9 +105,27 @@ public class TypingDoc extends BaseEntity {
     }
 
     public void edit(String title, String content, Access access) {
-        if (title != null) this.title = title;
-        if (content != null) this.content = content;
-        if (access != null) this.access = access;
+        boolean changed = false;
+        if (title != null) {
+            this.title = title;
+            changed = true;
+        }
+        if (content != null) {
+            this.content = content;
+            changed = true;
+        }
+        if (access != null) {
+            this.access = access;
+            changed = true;
+        }
+        if (changed) {
+            this.editedAt = LocalDateTime.now();
+        }
+    }
+
+    // 페이지 아이템 전용 내용 축약
+    public String getShortContent() {
+        return this.content.length() > 100 ? this.content.substring(0, 100) + "..." : this.content;
     }
 
     // 이 문서의 코멘트를 생성한다.

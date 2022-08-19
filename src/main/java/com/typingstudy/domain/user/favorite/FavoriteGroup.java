@@ -1,5 +1,6 @@
 package com.typingstudy.domain.user.favorite;
 
+import com.typingstudy.domain.BaseEntity;
 import com.typingstudy.domain.user.User;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,12 +10,13 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Table(name = "user_favorite_group")
 @Entity
 @Getter
 @NoArgsConstructor
-public class FavoriteGroup {
+public class FavoriteGroup extends BaseEntity {
     @Id
     @GeneratedValue
     @Column(name = "user_favorite_group_id")
@@ -35,6 +37,7 @@ public class FavoriteGroup {
     }
 
     public FavoriteItem createItem(String docToken) {
+        this.setEditedAt(LocalDateTime.now());
         return new FavoriteItem(this, docToken);
     }
 }

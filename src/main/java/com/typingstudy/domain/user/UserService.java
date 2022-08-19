@@ -25,6 +25,8 @@ public interface UserService {
     // 만약 group의 소유자가 요청된 user가 아니면 InvalidAccessException을 발생시킨다.
     List<FavoriteGroupInfo.GroupInfo> retrieveFavoriteGroups(Long userId, int page);
 
+    List<FavoriteGroupInfo.ContainsDoc> retrieveContainsDoc(Long userId, String docToken);
+
     void removeFavoriteGroup(Long userId, Long groupId);
 
     FavoriteGroupInfo.GroupInfo editFavoriteGroup(UserCommand.EditFavoriteGroupRequest request);
@@ -32,4 +34,6 @@ public interface UserService {
     FavoriteGroupInfo.ItemInfo addFavoriteItem(UserCommand.AddFavoriteItemRequest request);
 
     void removeFavoriteItem(UserCommand.RemoveFavoriteItemRequest request);
+
+    public void removeAllItemsByDocToken(Long userId, Long groupId, String docToken);
 }

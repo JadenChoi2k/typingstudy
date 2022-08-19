@@ -15,4 +15,6 @@ public interface FavoriteRepository {
     List<FavoriteGroup> findAllGroups(Long userId);
 
     List<FavoriteItem> findAllItems(Long groupId);
+
+    List<FavoriteGroup> findAllContainsDoc(String docToken);
 }

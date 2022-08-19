@@ -104,6 +104,22 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public List<FavoriteGroupInfo.ContainsDoc> retrieveContainsDoc(Long userId, String docToken) {
+        List<FavoriteGroup> allGroups = favoriteReader.findAllGroups(userId);
+        Map<Long, FavoriteGroup> idToGroupMap = favoriteReader.findAllGroupContainsDoc(docToken).stream()
+                .collect(Collectors.toMap(FavoriteGroup::getId, Function.identity()));
+        return allGroups.stream()
+                .map((group) -> FavoriteGroupInfo.ContainsDoc.builder()
+                        .groupId(group.getId())
+                        .groupName(group.getGroupName())
+                        .userId(group.getUser().getId())
+                        .docToken(docToken)
+                        .result(idToGroupMap.containsKey(group.getId()))
+                        .build())
+                .toList();
+    }
+
+    @Override
     public List<FavoriteGroupInfo.ItemInfo> retrieveFavoriteGroupItems(Long userId, Long groupId, int page) {
         List<FavoriteItem> items = userReader.findAllFavoriteItems(groupId, page, 20);
         Map<String, TypingDoc> docTokenToDocMap = docReader
@@ -155,5 +171,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public void removeFavoriteItem(RemoveFavoriteItemRequest request) {
         favoriteStore.removeFavoriteItem(request.getUserId(), request.getItemId());
+    }
+
+    @Override
+    public void removeAllItemsByDocToken(Long userId, Long groupId, String docToken) {
+        favoriteStore.removeFavoriteItemByDocToken(userId, groupId, docToken);
     }
 }

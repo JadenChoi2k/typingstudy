@@ -26,10 +26,12 @@ public class DocReviewHistoryReaderImpl implements DocReviewHistoryReader {
     }
 
     @Override
-    public List<DocReviewHistory> findAllByUserId(Long userId) {
+    public List<DocReviewHistory> findAllByUserId(Long userId, int page) {
         return em.createQuery("select hist from DocReviewHistory hist" +
                         " where hist.doc.authorId = :userId", DocReviewHistory.class)
                 .setParameter("userId", userId)
+                .setMaxResults(20)
+                .setFirstResult(20 * page)
                 .getResultList();
     }
 

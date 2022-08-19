@@ -70,8 +70,12 @@ public class TypingDocFacade {
         return docService.reviewHistoryByToken(docToken, page);
     }
 
-    public List<DocReviewHistoryInfo> reviewHistoryByUserId(Long userId) {
-        return docService.reviewHistoryByUserId(userId);
+    public List<DocReviewHistoryInfo> reviewHistoryByUserId(Long userId, int page) {
+        return docService.reviewHistoryByUserId(userId, page);
+    }
+
+    public List<TypingDocInfo.PageItem> recommendedReview(Long userId, int page) {
+        return docService.recommendedReview(userId, page);
     }
 
     public long reviewCountByToken(String docToken) {
@@ -84,6 +88,10 @@ public class TypingDocFacade {
 
     public List<DocCommentInfo.Main> retrieveComments(String docToken) {
         return docService.retrieveComments(docToken);
+    }
+
+    public List<DocCommentInfo.Main> retrieveRelatedComments(Long userId, int page) {
+        return docService.retrieveRelatedComments(userId, page);
     }
 
     public DocCommentInfo.Main addComment(DocCommand.AddCommentRequest request) {

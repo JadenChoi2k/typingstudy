@@ -8,4 +8,6 @@ public interface FavoriteReader {
     List<FavoriteGroup> findAllGroups(Long userId);
 
     List<FavoriteItem> findAllItems(Long groupId);
+
+    List<FavoriteGroup> findAllGroupContainsDoc(String docToken);
 }

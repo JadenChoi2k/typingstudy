@@ -33,6 +33,15 @@ public class FavoriteStoreImpl implements FavoriteStore {
         em.remove(group);
     }
 
+    // 문서 삭제할 때 외에는 호출하지 않도록 주의
+    @Override
+    public void removeAllItemsByDocToken(String docToken) {
+        log.info("토큰에 해당하는 즐겨찾기 아이템 제거 docToken={}", docToken);
+        em.createQuery("delete from FavoriteItem item where item.docToken = :docToken")
+                .setParameter("docToken", docToken)
+                .executeUpdate();
+    }
+
     @Override
     public void removeFavoriteItem(Long userId, Long itemId) {
         //group2.user.id = :userId and item2.id = :itemId
@@ -44,6 +53,21 @@ public class FavoriteStoreImpl implements FavoriteStore {
                         ")")
                 .setParameter("userId", userId)
                 .setParameter("itemId", itemId)
+                .executeUpdate();
+        if (removeCount == 0) throw new IllegalStateException("즐겨찾기 아이템 삭제 실패");
+    }
+
+    @Override
+    public void removeFavoriteItemByDocToken(Long userId, Long groupId, String docToken) {
+        em.createQuery("select true from FavoriteGroup group" +
+                        " where group.id = :groupId and group.user.id =:userId", Boolean.class)
+                .setParameter("userId", userId)
+                .setParameter("groupId", groupId)
+                .getSingleResult();
+        int removeCount = em.createQuery("delete from FavoriteItem item" +
+                        " where item.group.id = :groupId and item.docToken = :docToken")
+                .setParameter("groupId", groupId)
+                .setParameter("docToken", docToken)
                 .executeUpdate();
         if (removeCount == 0) throw new IllegalStateException("즐겨찾기 아이템 삭제 실패");
     }

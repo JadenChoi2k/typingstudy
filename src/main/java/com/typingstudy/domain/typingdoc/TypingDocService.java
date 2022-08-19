@@ -40,13 +40,18 @@ public interface TypingDocService {
     List<DocReviewHistoryInfo> reviewHistoryByToken(String docToken, Integer page);
 
     // 유저의 복습 기록 조회
-    List<DocReviewHistoryInfo> reviewHistoryByUserId(Long userId);
+    List<DocReviewHistoryInfo> reviewHistoryByUserId(Long userId, int page);
+
+    // 유저의 복습 추천
+    List<TypingDocInfo.PageItem> recommendedReview(Long userId, int page);
 
     long reviewCountByToken(String docToken);
 
     long reviewCountByUserId(Long userId);
 
     List<DocCommentInfo.Main> retrieveComments(String docToken);
+
+    List<DocCommentInfo.Main> retrieveRelatedComments(Long userId, int page);
 
     DocCommentInfo.Main addComment(DocCommand.AddCommentRequest request);
 

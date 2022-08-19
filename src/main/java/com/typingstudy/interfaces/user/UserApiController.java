@@ -111,22 +111,21 @@ public class UserApiController {
         );
     }
 
-    // favorites 구현 후 구현하기
-    @GetMapping("/favorites")
-    public CommonResponse favorites(@RequestParam(name = "page", defaultValue = "0") Integer page) {
-        return CommonResponse.success(
-                userFacade.retrieveFavoriteGroups(getUserId(), page).stream()
-                        .map(dtoMapper::of)
-                        .collect(Collectors.toList())
-        );
-    }
-
     @PostMapping("/favorites/create")
     public CommonResponse createFavoriteGroup(@RequestBody UserDto.CreateFavoriteGroupRequest requestDto) {
         requestDto.setUserId(getUserId());
         FavoriteGroupInfo.GroupInfo groupInfo = userFacade.createFavoriteGroup(dtoMapper.of(requestDto));
         return CommonResponse.success(
                 dtoMapper.of(groupInfo)
+        );
+    }
+
+    @GetMapping("/favorites")
+    public CommonResponse favorites(@RequestParam(name = "page", defaultValue = "0") Integer page) {
+        return CommonResponse.success(
+                userFacade.retrieveFavoriteGroups(getUserId(), page).stream()
+                        .map(dtoMapper::of)
+                        .collect(Collectors.toList())
         );
     }
 
@@ -139,6 +138,17 @@ public class UserApiController {
         groupWithItemInfo.setItems(items);
         return CommonResponse.success(
                 dtoMapper.of(groupWithItemInfo)
+        );
+    }
+
+    // todo: add test
+    @GetMapping("/favorites/contains")
+    public CommonResponse favoriteGroupContainsDoc(@RequestParam(name = "docToken") String docToken) {
+        List<FavoriteGroupInfo.ContainsDoc> containsDocs = userFacade.retrieveContainsDoc(SecurityUtils.getUserId(), docToken);
+        return CommonResponse.success(
+                containsDocs.stream()
+                        .map(dtoMapper::of)
+                        .toList()
         );
     }
 
@@ -175,6 +185,12 @@ public class UserApiController {
         requestDto.setUserId(getUserId());
         requestDto.setItemId(itemId);
         userFacade.removeFavoriteItem(dtoMapper.of(requestDto));
+        return CommonResponse.ok();
+    }
+
+    @DeleteMapping("/favorites/{groupId}/bydoc/{docToken}")
+    public CommonResponse removeFavoriteItemByDocToken(@PathVariable Long groupId, @PathVariable String docToken) {
+        userFacade.removeFavoriteItemByDocToken(SecurityUtils.getUserId(), groupId, docToken);
         return CommonResponse.ok();
     }
 

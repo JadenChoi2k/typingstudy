@@ -10,4 +10,7 @@ import java.util.List;
 public interface DocCommentJpaRepository extends JpaRepository<DocComment, Long> {
     @Query("select c from DocComment c where c.doc.docToken = :docToken")
     List<DocComment> findAllByDocToken(@Param("docToken") String docToken);
+
+    @Query("select c from DocComment c where c.doc.authorId = :userId or c.userId = :userId")
+    List<DocComment> findAllRelated(@Param("userId") Long userId);
 }

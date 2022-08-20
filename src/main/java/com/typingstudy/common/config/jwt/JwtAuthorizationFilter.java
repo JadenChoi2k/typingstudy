@@ -1,6 +1,8 @@
 package com.typingstudy.common.config.jwt;
 
 import com.typingstudy.common.config.auth.PrincipalDetails;
+import com.typingstudy.common.config.jwt.refresh.RefreshToken;
+import com.typingstudy.common.config.jwt.refresh.RefreshTokenRepository;
 import com.typingstudy.domain.user.User;
 import com.typingstudy.infrastructure.user.UserRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -9,6 +11,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -24,10 +27,12 @@ import java.util.Optional;
 @Slf4j
 public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
     private final UserRepository userRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
 
-    public JwtAuthorizationFilter(AuthenticationManager authenticationManager, UserRepository userRepository) {
+    public JwtAuthorizationFilter(AuthenticationManager authenticationManager, UserRepository userRepository, RefreshTokenRepository refreshTokenRepository) {
         super(authenticationManager);
         this.userRepository = userRepository;
+        this.refreshTokenRepository = refreshTokenRepository;
     }
 
     @Override
@@ -51,6 +56,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
                 PrincipalDetails principalDetails = new PrincipalDetails(userEntity.get());
                 Authentication authentication = new UsernamePasswordAuthenticationToken(principalDetails, null, principalDetails.getAuthorities());
                 log.info("jwt 검증 완료. security session에 주입");
+                executeRefreshCheck(jwt, principalDetails, response);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         }
@@ -66,5 +72,26 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
                 .findFirst()
                 .map(Cookie::getValue)
                 .orElse(null);
+    }
+
+    @Transactional
+    protected void executeRefreshCheck(String jwt, PrincipalDetails principalDetails, HttpServletResponse response) {
+        Long userId = principalDetails.getUser().getId();
+        Optional<RefreshToken> entity = refreshTokenRepository.findById(userId);
+        // inject refresh token to header
+        entity.ifPresent((ref) -> {
+            if (!ref.getToken().replace(JwtProperty.JWT_PREFIX, "").equals(jwt)) {
+                log.info("refresh 토큰 발급 x, jwt={}, processedJwt={}", jwt, ref.getToken().replace(JwtProperty.JWT_PREFIX, ""));
+                return;
+            }
+            String accessToken = JwtUtils.createDomainJwt(principalDetails);
+            String refreshToken = JwtUtils.createDomainJwt(principalDetails, 60000 * 60);
+            ref.setToken(refreshToken);
+            refreshTokenRepository.save(ref);
+            // inject
+            response.addHeader(JwtProperty.JWT_HEADER, accessToken);
+            response.addHeader(JwtProperty.REFRESH_HEADER, refreshToken);
+            log.info("jwt refresh 토큰 요청, 생성 완료.");
+        });
     }
 }

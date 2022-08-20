@@ -24,10 +24,30 @@ public class JwtUtils {
                 .sign(Algorithm.HMAC512(JwtProperty.SECRET));
     }
 
+    public static String createDomainJwt(PrincipalDetails principalDetails, int plusTimeout) {
+        return JWT.create()
+                .withSubject(principalDetails.getUsername())
+                .withExpiresAt(new Date(System.currentTimeMillis() + JwtProperty.TIMEOUT + plusTimeout))
+                .withClaim("platform", "DOMAIN")
+                .withClaim("id", principalDetails.getUser().getId())
+                .withClaim("username", principalDetails.getUser().getUsername())
+                .sign(Algorithm.HMAC512(JwtProperty.SECRET));
+    }
+
     public static String createSocialJwt(PrincipalDetails principalDetails) {
         return JWT.create()
                 .withSubject(principalDetails.getUsername())
                 .withExpiresAt(new Date(System.currentTimeMillis() + JwtProperty.TIMEOUT))
+                .withClaim("platform", principalDetails.getUser().getPlatform().name())
+                .withClaim("id", principalDetails.getUser().getId())
+                .withClaim("username", principalDetails.getUser().getUsername())
+                .sign(Algorithm.HMAC512(JwtProperty.SECRET));
+    }
+
+    public static String createSocialJwt(PrincipalDetails principalDetails, int plusTimeout) {
+        return JWT.create()
+                .withSubject(principalDetails.getUsername())
+                .withExpiresAt(new Date(System.currentTimeMillis() + JwtProperty.TIMEOUT + plusTimeout))
                 .withClaim("platform", principalDetails.getUser().getPlatform().name())
                 .withClaim("id", principalDetails.getUser().getId())
                 .withClaim("username", principalDetails.getUser().getUsername())

@@ -23,7 +23,7 @@ public class DocReviewRecommenderImpl implements DocReviewRecommender {
      * 복습 횟수 0회 -> 작성날로부터 10분 ~ 1일
      * 복습 횟수 1회 -> 작성날로부터 1일 ~ 3일
      * 복습 횟수 2회 -> 작성날로부터 7일 ~ 10일
-     * 복습 횟수 3회 -> 작성날로부터 30일 ~ 33일
+     * 복습 횟수 3회 -> 작성날로부터 25일 ~ 33일
      * 제약조건: db가 datediff 함수를 지원해야 함.
      *
      * @param userId
@@ -36,10 +36,10 @@ public class DocReviewRecommenderImpl implements DocReviewRecommender {
                         " doc from TypingDoc doc" +
                         " where doc.authorId = :userId and (" +
                         " (doc.reviewCount = 0 and FUNCTION('datediff', 'day', doc.createdAt, current_timestamp) < 2)" +
-                        " or (doc.reviewCount = 1 and FUNCTION('datediff', 'day', doc.createdAt, current_timestamp) < 4)" +
-                        " or (doc.reviewCount = 2 and FUNCTION('datediff', 'day', doc.createdAt, current_timestamp) < 11)" +
-                        " or (doc.reviewCount = 3 and FUNCTION('datediff', 'day', doc.createdAt, current_timestamp) < 34)" +
-                        ") order by doc.createdAt asc", TypingDoc.class)
+                        " or (doc.reviewCount = 1 and FUNCTION('datediff', 'day', doc.createdAt, current_timestamp) > 2 and FUNCTION('datediff', 'day', doc.createdAt, current_timestamp) < 4)" +
+                        " or (doc.reviewCount = 2 and FUNCTION('datediff', 'day', doc.createdAt, current_timestamp) > 7 and FUNCTION('datediff', 'day', doc.createdAt, current_timestamp) < 11)" +
+                        " or (doc.reviewCount = 3 and FUNCTION('datediff', 'day', doc.createdAt, current_timestamp) > 25 and FUNCTION('datediff', 'day', doc.createdAt, current_timestamp) < 34)" +
+                        ") order by doc.createdAt desc", TypingDoc.class)
                 .setParameter("userId", userId)
                 .setMaxResults(20)
                 .setFirstResult(page * 20)

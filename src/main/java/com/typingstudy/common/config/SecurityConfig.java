@@ -2,6 +2,8 @@ package com.typingstudy.common.config;
 
 import com.typingstudy.common.config.jwt.JwtBasicAuthenticationFilter;
 import com.typingstudy.common.config.jwt.JwtAuthorizationFilter;
+import com.typingstudy.common.config.jwt.refresh.RefreshToken;
+import com.typingstudy.common.config.jwt.refresh.RefreshTokenRepository;
 import com.typingstudy.common.config.oauth.CustomAuthenticationSuccessHandler;
 import com.typingstudy.common.config.oauth.PrincipalOauth2UserService;
 import com.typingstudy.infrastructure.user.UserRepository;
@@ -21,6 +23,7 @@ import org.springframework.security.web.authentication.logout.LogoutFilter;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
     // PrincipalOauth2UserService가 di될 예정
     private final PrincipalOauth2UserService oAuth2UserService;
+    private final RefreshTokenRepository refreshTokenRepository;
     private final UserRepository userRepository;
 
     @Bean
@@ -35,8 +38,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .csrf().disable()
                 .formLogin().disable()
                 .httpBasic().disable()
-                .addFilter(new JwtBasicAuthenticationFilter(authenticationManager()))
-                .addFilter(new JwtAuthorizationFilter(authenticationManager(), userRepository))
+                .addFilter(new JwtBasicAuthenticationFilter(authenticationManager(), refreshTokenRepository))
+                .addFilter(new JwtAuthorizationFilter(authenticationManager(), userRepository, refreshTokenRepository))
                 .authorizeRequests()
                 .antMatchers(
                         "/api/v1/user/join",

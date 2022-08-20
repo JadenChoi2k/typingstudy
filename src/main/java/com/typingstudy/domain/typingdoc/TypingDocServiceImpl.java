@@ -65,6 +65,7 @@ public class TypingDocServiceImpl implements TypingDocService {
                 request.getContent(),
                 request.getAccess()
         );
+        log.info("doc changed docToken={}, doc.editedAt={}", doc.getDocToken(), doc.getEditedAt());
         return TypingDocInfo.Main.of(doc);
     }
 

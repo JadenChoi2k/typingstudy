@@ -35,29 +35,30 @@ public class DocReviewRecommenderImpl implements DocReviewRecommender {
      */
     @Override
     public List<TypingDoc> recommend(Long userId, int page) {
-        // h2 database
-        if (Arrays.asList(environment.getActiveProfiles()).contains("test")) {
+        // mysql
+        if (Arrays.asList(environment.getActiveProfiles()).contains("prod")) {
+            log.info("mysql native query function call: datediff");
             return em.createQuery("select" +
                             " doc from TypingDoc doc" +
                             " where doc.authorId = :userId and (" +
-                            " (doc.reviewCount = 0 and FUNCTION('datediff', 'day', doc.createdAt, current_timestamp) < 2)" +
-                            " or (doc.reviewCount = 1 and FUNCTION('datediff', 'day', doc.createdAt, current_timestamp) > 2 and FUNCTION('datediff', 'day', doc.createdAt, current_timestamp) < 4)" +
-                            " or (doc.reviewCount = 2 and FUNCTION('datediff', 'day', doc.createdAt, current_timestamp) > 7 and FUNCTION('datediff', 'day', doc.createdAt, current_timestamp) < 11)" +
-                            " or (doc.reviewCount = 3 and FUNCTION('datediff', 'day', doc.createdAt, current_timestamp) > 25 and FUNCTION('datediff', 'day', doc.createdAt, current_timestamp) < 34)" +
+                            " (doc.reviewCount = 0 and FUNCTION('TIMESTAMPDIFF', DAY, doc.createdAt, current_timestamp) < 2)" +
+                            " or (doc.reviewCount = 1 and FUNCTION('TIMESTAMPDIFF', DAY, doc.createdAt, current_timestamp) > 2 and FUNCTION('TIMESTAMPDIFF', DAY, doc.createdAt, current_timestamp) < 4)" +
+                            " or (doc.reviewCount = 2 and FUNCTION('TIMESTAMPDIFF', DAY, doc.createdAt, current_timestamp) > 7 and FUNCTION('TIMESTAMPDIFF', DAY, doc.createdAt, current_timestamp) < 11)" +
+                            " or (doc.reviewCount = 3 and FUNCTION('TIMESTAMPDIFF', DAY, doc.createdAt, current_timestamp) > 25 and FUNCTION('TIMESTAMPDIFF', DAY, doc.createdAt, current_timestamp) < 34)" +
                             ") order by doc.createdAt desc", TypingDoc.class)
                     .setParameter("userId", userId)
                     .setMaxResults(20)
                     .setFirstResult(page * 20)
                     .getResultList();
         }
-        // mysql
+        // h2 database
         return em.createQuery("select" +
                         " doc from TypingDoc doc" +
                         " where doc.authorId = :userId and (" +
-                        " (doc.reviewCount = 0 and FUNCTION('datediff', doc.createdAt, current_timestamp) < 2)" +
-                        " or (doc.reviewCount = 1 and FUNCTION('datediff', doc.createdAt, current_timestamp) > 2 and FUNCTION('datediff', 'day', doc.createdAt, current_timestamp) < 4)" +
-                        " or (doc.reviewCount = 2 and FUNCTION('datediff', doc.createdAt, current_timestamp) > 7 and FUNCTION('datediff', 'day', doc.createdAt, current_timestamp) < 11)" +
-                        " or (doc.reviewCount = 3 and FUNCTION('datediff', doc.createdAt, current_timestamp) > 25 and FUNCTION('datediff', 'day', doc.createdAt, current_timestamp) < 34)" +
+                        " (doc.reviewCount = 0 and FUNCTION('datediff', 'day', doc.createdAt, current_timestamp) < 2)" +
+                        " or (doc.reviewCount = 1 and FUNCTION('datediff', 'day', doc.createdAt, current_timestamp) > 2 and FUNCTION('datediff', 'day', doc.createdAt, current_timestamp) < 4)" +
+                        " or (doc.reviewCount = 2 and FUNCTION('datediff', 'day', doc.createdAt, current_timestamp) > 7 and FUNCTION('datediff', 'day', doc.createdAt, current_timestamp) < 11)" +
+                        " or (doc.reviewCount = 3 and FUNCTION('datediff', 'day', doc.createdAt, current_timestamp) > 25 and FUNCTION('datediff', 'day', doc.createdAt, current_timestamp) < 34)" +
                         ") order by doc.createdAt desc", TypingDoc.class)
                 .setParameter("userId", userId)
                 .setMaxResults(20)

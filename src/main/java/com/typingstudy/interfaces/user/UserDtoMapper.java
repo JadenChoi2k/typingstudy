@@ -2,6 +2,7 @@ package com.typingstudy.interfaces.user;
 
 import com.typingstudy.domain.typingdoc.history.DocReviewHistoryInfo;
 import com.typingstudy.domain.user.UserCommand;
+import com.typingstudy.domain.user.UserDetailInfo;
 import com.typingstudy.domain.user.UserInfo;
 import com.typingstudy.domain.user.favorite.FavoriteGroupInfo;
 import com.typingstudy.interfaces.typingdoc.TypingDocDto;
@@ -29,6 +30,8 @@ public interface UserDtoMapper {
     UserCommand.ResignUserRequest of(UserDto.ResignUserRequest resignUserRequest);
 
     UserDto.Main of(UserInfo userInfo);
+
+    UserDto.Detail of(UserDetailInfo userDetailInfo);
 
     UserDto.FavoriteItemDto of(FavoriteGroupInfo.ItemInfo itemInfo);
 

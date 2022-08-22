@@ -2,8 +2,10 @@ package com.typingstudy.common.config;
 
 import com.typingstudy.common.config.jwt.JwtBasicAuthenticationFilter;
 import com.typingstudy.common.config.jwt.JwtAuthorizationFilter;
-import com.typingstudy.common.config.jwt.refresh.RefreshToken;
-import com.typingstudy.common.config.jwt.refresh.RefreshTokenRepository;
+import com.typingstudy.common.config.jwt.JwtLogoutFilter;
+import com.typingstudy.common.config.jwt.JwtLogoutSuccessHandler;
+import com.typingstudy.domain.user.jwt.LogoutService;
+import com.typingstudy.domain.user.jwt.RefreshTokenRepository;
 import com.typingstudy.common.config.oauth.CustomAuthenticationSuccessHandler;
 import com.typingstudy.common.config.oauth.PrincipalOauth2UserService;
 import com.typingstudy.infrastructure.user.UserRepository;
@@ -15,7 +17,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.web.authentication.logout.LogoutFilter;
 
 @Configuration
 @EnableWebSecurity // 필터 체인 관리 시작 어노테이션
@@ -25,6 +26,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final PrincipalOauth2UserService oAuth2UserService;
     private final RefreshTokenRepository refreshTokenRepository;
     private final UserRepository userRepository;
+    private final LogoutService logoutService;
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
@@ -38,17 +40,22 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .csrf().disable()
                 .formLogin().disable()
                 .httpBasic().disable()
+                .logout()
+                    .addLogoutHandler(new JwtLogoutFilter(logoutService))
+                    .logoutSuccessHandler(new JwtLogoutSuccessHandler())
+                    .and()
                 .addFilter(new JwtBasicAuthenticationFilter(authenticationManager(), refreshTokenRepository))
-                .addFilter(new JwtAuthorizationFilter(authenticationManager(), userRepository, refreshTokenRepository))
+                .addFilter(new JwtAuthorizationFilter(authenticationManager(), userRepository, refreshTokenRepository, logoutService))
                 .authorizeRequests()
-                .antMatchers(
-                        "/api/v1/user/join",
-                        "/api/v1/user/info/**",
-                        "/api/v1/user/email/verify").permitAll()
-                .antMatchers("/api/v1/user/**", "/api/v1/docs/**").authenticated()
-                .anyRequest().permitAll()
-                .and()
+                    .antMatchers(
+                            "/api/v1/user/join",
+                            "/api/v1/user/info/**",
+                            "/api/v1/user/email/verify").permitAll()
+                    .antMatchers("/api/v1/user/**", "/api/v1/docs/**").authenticated()
+                    .anyRequest().permitAll()
+                    .and()
                 .oauth2Login()
+                .loginPage("/unauthorized")
                 .successHandler(new CustomAuthenticationSuccessHandler())
                 .userInfoEndpoint()
                 .userService(oAuth2UserService);

@@ -2,8 +2,8 @@ package com.typingstudy.common.config.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.typingstudy.common.config.auth.PrincipalDetails;
-import com.typingstudy.common.config.jwt.refresh.RefreshToken;
-import com.typingstudy.common.config.jwt.refresh.RefreshTokenRepository;
+import com.typingstudy.domain.user.jwt.RefreshToken;
+import com.typingstudy.domain.user.jwt.RefreshTokenRepository;
 import com.typingstudy.interfaces.user.UserDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

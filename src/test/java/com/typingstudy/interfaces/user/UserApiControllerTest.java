@@ -17,6 +17,7 @@ import org.springframework.restdocs.payload.PayloadDocumentation;
 import org.springframework.restdocs.snippet.Attributes;
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
 import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -43,6 +44,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @Slf4j
 @Transactional
+@ActiveProfiles({"test", "oauth", "mail"})
 @ExtendWith({RestDocumentationExtension.class, SpringExtension.class})
 @TestMethodOrder(value = MethodOrderer.OrderAnnotation.class)
 @SpringBootTest
@@ -132,9 +134,10 @@ class UserApiControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.ALL)
                 )
-                .andExpect(status().isOk())
-                .andExpect(header().exists("Authorization"));
-        return result.andReturn().getResponse().getHeader("Authorization");
+                .andExpect(status().isOk());
+//                .andExpect(header().exists("Authorization"));
+        Map<String, Object> json = new JacksonJsonParser().parseMap(result.andReturn().getResponse().getContentAsString());
+        return json.get("accessToken").toString();
     }
 
     private String updateAccessToken() throws Exception {
@@ -194,9 +197,9 @@ class UserApiControllerTest {
                 .andDo(document("domain-user-login",
                         preprocessRequest(prettyPrint()),
                         preprocessResponse(prettyPrint())
-                ))
-                .andExpect(header().exists("Authorization"));
-        this.authToken = result.andReturn().getResponse().getHeader("Authorization");
+                ));
+        Map<String, Object> json = new JacksonJsonParser().parseMap(result.andReturn().getResponse().getContentAsString());
+        this.authToken = json.get("accessToken").toString();
     }
 
     @Test
@@ -275,7 +278,11 @@ class UserApiControllerTest {
                                 PayloadDocumentation.fieldWithPath("data.groupName")
                                         .description("name of group"),
                                 PayloadDocumentation.fieldWithPath("data.userId")
-                                        .description("owner of group")
+                                        .description("owner of group"),
+                                PayloadDocumentation.fieldWithPath("data.lastEdited")
+                                        .description("datetime of edit"),
+                                PayloadDocumentation.fieldWithPath("data.created")
+                                        .description("datetime of create")
                         )
                 ));
         Map<String, Object> responseBody = new JacksonJsonParser().parseMap(result.andReturn().getResponse().getContentAsString());
@@ -397,7 +404,11 @@ class UserApiControllerTest {
                                 PayloadDocumentation.fieldWithPath("data.groupName")
                                         .description("name of group"),
                                 PayloadDocumentation.fieldWithPath("data.userId")
-                                        .description("owner of user")
+                                        .description("owner of user"),
+                                PayloadDocumentation.fieldWithPath("data.lastEdited")
+                                        .description("datetime of edit"),
+                                PayloadDocumentation.fieldWithPath("data.created")
+                                        .description("datetime of create")
                         )
                 ));
     }

@@ -18,5 +18,7 @@ public interface TypingDocRepository {
 
     TypingDoc save(TypingDoc doc);
 
+    long countsByUserId(Long userId);
+
     boolean validatePrivate(String docToken, Long userId);
 }

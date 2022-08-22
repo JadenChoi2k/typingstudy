@@ -79,6 +79,17 @@ public class UserDto {
     }
 
     @Data
+    public static class Detail {
+        private Long id;
+        private String username;
+        private String profileUrl;
+        private String platform;
+        private LocalDateTime joinDateTime;
+        private Integer docCount;
+        private Integer reviewCount;
+    }
+
+    @Data
     public static class FavoriteGroupDto {
         private Long groupId;
         private String groupName;

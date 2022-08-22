@@ -39,6 +39,11 @@ public class TypingDocReaderImpl implements TypingDocReader {
     }
 
     @Override
+    public long countsByUserId(Long userId) {
+        return docRepository.countsByUserId(userId);
+    }
+
+    @Override
     public boolean validatePrivate(String docToken, Long userId) {
         return docRepository.validatePrivate(docToken, userId);
     }

@@ -5,6 +5,7 @@ import com.typingstudy.common.exception.InvalidAccessException;
 import com.typingstudy.common.exception.InvalidParameterException;
 import com.typingstudy.domain.typingdoc.TypingDoc;
 import com.typingstudy.domain.typingdoc.TypingDocReader;
+import com.typingstudy.domain.typingdoc.history.DocReviewHistoryReader;
 import com.typingstudy.domain.user.favorite.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +27,7 @@ import static com.typingstudy.domain.user.UserCommand.*;
 public class UserServiceImpl implements UserService {
     private final UserReader userReader;
     private final TypingDocReader docReader;
+    private final DocReviewHistoryReader historyReader;
     private final UserStore userStore;
     private final FavoriteReader favoriteReader;
     private final FavoriteStore favoriteStore;
@@ -69,6 +71,15 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     public UserInfo retrieve(Long userId) {
         return UserInfo.of(userReader.findById(userId));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public UserDetailInfo retrieveDetail(Long userId) {
+        User user = userReader.findById(userId);
+        UserDetailInfo userDetailInfo = UserDetailInfo.of(user);
+        userDetailInfo.setFields((int) docReader.countsByUserId(userId), (int) historyReader.countsByUserId(userId));
+        return userDetailInfo;
     }
 
     @Override

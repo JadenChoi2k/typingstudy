@@ -1,4 +1,4 @@
-package com.typingstudy.common.config.jwt.refresh;
+package com.typingstudy.domain.user.jwt;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

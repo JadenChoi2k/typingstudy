@@ -14,6 +14,8 @@ public interface UserService {
 //    UserInfo join(UserCommand.SocialUserRegisterRequest socialUserRegisterRequest);
     UserInfo retrieve(Long userId);
 
+    UserDetailInfo retrieveDetail(Long userId);
+
     void resign(UserCommand.ResignUserRequest request);
 
     FavoriteGroupInfo.GroupInfo createFavoriteGroup(UserCommand.CreateFavoriteGroupRequest request);

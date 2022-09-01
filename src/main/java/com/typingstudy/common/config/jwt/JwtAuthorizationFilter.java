@@ -1,8 +1,10 @@
 package com.typingstudy.common.config.jwt;
 
 import com.typingstudy.common.config.auth.PrincipalDetails;
-import com.typingstudy.common.config.jwt.refresh.RefreshToken;
-import com.typingstudy.common.config.jwt.refresh.RefreshTokenRepository;
+import com.typingstudy.common.exception.InvalidAccessException;
+import com.typingstudy.domain.user.jwt.LogoutService;
+import com.typingstudy.domain.user.jwt.RefreshToken;
+import com.typingstudy.domain.user.jwt.RefreshTokenRepository;
 import com.typingstudy.domain.user.User;
 import com.typingstudy.infrastructure.user.UserRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -19,8 +21,6 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -28,23 +28,24 @@ import java.util.Optional;
 public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
     private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final LogoutService logoutService;
 
-    public JwtAuthorizationFilter(AuthenticationManager authenticationManager, UserRepository userRepository, RefreshTokenRepository refreshTokenRepository) {
+    public JwtAuthorizationFilter(
+            AuthenticationManager authenticationManager,
+            UserRepository userRepository,
+            RefreshTokenRepository refreshTokenRepository,
+            LogoutService logoutService
+    ) {
         super(authenticationManager);
         this.userRepository = userRepository;
         this.refreshTokenRepository = refreshTokenRepository;
+        this.logoutService = logoutService;
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
-        String jwt = request.getHeader(JwtProperty.JWT_HEADER);
-        log.info("request uri : {}", request.getRequestURI());
-        log.info("request url : {}", request.getRequestURL());
-        log.info("request code : {}", request.getParameter("code"));
-        String cookieJwt = getJwtFromCookies(request);
-        jwt = cookieJwt != null ? URLDecoder.decode(cookieJwt, StandardCharsets.UTF_8) : jwt;
-        log.info("jwt authorization = {}", jwt);
-        if (jwt == null || !jwt.startsWith(JwtProperty.JWT_PREFIX)) {
+        String jwt = JwtUtils.extractAccessTokenFromRequest(request);
+        if (jwt == null || logoutService.isLogout(jwt) ||  !jwt.startsWith(JwtProperty.JWT_PREFIX)) {
             chain.doFilter(request, response);
             return;
         }
@@ -81,7 +82,6 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
         // inject refresh token to header
         entity.ifPresent((ref) -> {
             if (!ref.getToken().replace(JwtProperty.JWT_PREFIX, "").equals(jwt)) {
-                log.info("refresh 토큰 발급 x, jwt={}, processedJwt={}", jwt, ref.getToken().replace(JwtProperty.JWT_PREFIX, ""));
                 return;
             }
             String accessToken = JwtUtils.createDomainJwt(principalDetails);

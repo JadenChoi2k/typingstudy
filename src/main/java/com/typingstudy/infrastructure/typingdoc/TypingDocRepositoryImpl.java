@@ -76,6 +76,13 @@ public class TypingDocRepositoryImpl implements TypingDocRepository {
     }
 
     @Override
+    public long countsByUserId(Long userId) {
+        return em.createQuery("select count(doc) from TypingDoc doc where doc.authorId=:userId", Long.class)
+                .setParameter("userId", userId)
+                .getSingleResult();
+    }
+
+    @Override
     public boolean validatePrivate(String docToken, Long userId) {
         log.info("validate docToken={} userId={}", docToken, userId);
         boolean result = em.createQuery("select true from TypingDoc doc" +

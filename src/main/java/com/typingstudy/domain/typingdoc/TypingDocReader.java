@@ -23,5 +23,7 @@ public interface TypingDocReader {
 
     DocObject findDocObject(String docToken, String fileName);
 
+    long countsByUserId(Long userId);
+
     boolean validatePrivate(String docToken, Long userId);
 }

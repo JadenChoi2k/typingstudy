@@ -25,7 +25,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @Slf4j
 @Transactional
 @SpringBootTest
-@ActiveProfiles({"test", "oauth"})
+@ActiveProfiles({"test", "oauth", "mail"})
 class UserServiceTest {
     @Autowired
     private UserService userService;
@@ -61,7 +61,7 @@ class UserServiceTest {
         String email = "user@gmail.com";
         String password = "mypassword1234";
         String username = "testuser";
-        String profileUrl = ".../testuser.png";
+        String profileUrl = "/default_profile_image.png";
         // when
         UserInfo userInfo = userService.join(UserCommand.DomainUserRegisterRequest.builder()
                 .email(email)
@@ -370,12 +370,11 @@ class UserServiceTest {
         // when
         List<FavoriteGroupInfo.GroupInfo> groups = userService.retrieveFavoriteGroups(userInfo.getIdLong(), 0);
         // then
-        assertThat(groups.get(0).getGroupName()).isEqualTo("groupName 0"); // 가장 처음 저장된 그룹의 이름
         assertThat(groups)
                 .hasSize(20) // 20개씩 받아온다
                 .allMatch(group -> group.getGroupId() != null) // 모든 원소의 아이디 값은 존재한다
                 .allMatch(group -> group.getUserId().equals(userInfo.getIdLong())) // 모든 원소의 소유자는 같다
-                .isSortedAccordingTo(Comparator.comparing(FavoriteGroupInfo.GroupInfo::getGroupId)); // 데이터는 생성일로 오름차순 정렬되어 있다
+                .isSortedAccordingTo(Comparator.comparing(FavoriteGroupInfo.GroupInfo::getCreated).reversed()); // 데이터는 생성일로 내림차순 정렬되어 있다
     }
 
     @Test

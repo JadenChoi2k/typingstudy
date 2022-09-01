@@ -104,6 +104,13 @@ public class UserApiController {
         );
     }
 
+    @GetMapping("/me/detail")
+    public CommonResponse meDetail() {
+        return CommonResponse.success(
+                dtoMapper.of(userFacade.retrieveDetail(getUserId()))
+        );
+    }
+
     @GetMapping("/info/{userId}")
     public CommonResponse userInfo(@PathVariable Long userId) {
         return CommonResponse.success(

@@ -4,11 +4,13 @@ import com.typingstudy.domain.typingdoc.TypingDoc;
 import com.typingstudy.domain.typingdoc.history.DocReviewRecommender;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.env.Environment;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.EntityManager;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -17,6 +19,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class DocReviewRecommenderImpl implements DocReviewRecommender {
     private final EntityManager em;
+    private final Environment environment;
 
     /**
      * user가 가진 문서 중에서 다음을 충족하는 문서를 작성날짜에 대해 내림차순으로 제시
@@ -32,6 +35,23 @@ public class DocReviewRecommenderImpl implements DocReviewRecommender {
      */
     @Override
     public List<TypingDoc> recommend(Long userId, int page) {
+        // mysql
+        if (Arrays.asList(environment.getActiveProfiles()).contains("prod")) {
+            log.info("mysql native query function call: datediff");
+            return em.createQuery("select" +
+                            " doc from TypingDoc doc" +
+                            " where doc.authorId = :userId and (" +
+                            " (doc.reviewCount = 0 and FUNCTION('TIMESTAMPDIFF', DAY, doc.createdAt, current_timestamp) < 2)" +
+                            " or (doc.reviewCount = 1 and FUNCTION('TIMESTAMPDIFF', DAY, doc.createdAt, current_timestamp) > 2 and FUNCTION('TIMESTAMPDIFF', DAY, doc.createdAt, current_timestamp) < 4)" +
+                            " or (doc.reviewCount = 2 and FUNCTION('TIMESTAMPDIFF', DAY, doc.createdAt, current_timestamp) > 7 and FUNCTION('TIMESTAMPDIFF', DAY, doc.createdAt, current_timestamp) < 11)" +
+                            " or (doc.reviewCount = 3 and FUNCTION('TIMESTAMPDIFF', DAY, doc.createdAt, current_timestamp) > 25 and FUNCTION('TIMESTAMPDIFF', DAY, doc.createdAt, current_timestamp) < 34)" +
+                            ") order by doc.createdAt desc", TypingDoc.class)
+                    .setParameter("userId", userId)
+                    .setMaxResults(20)
+                    .setFirstResult(page * 20)
+                    .getResultList();
+        }
+        // h2 database
         return em.createQuery("select" +
                         " doc from TypingDoc doc" +
                         " where doc.authorId = :userId and (" +

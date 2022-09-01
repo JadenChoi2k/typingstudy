@@ -1,6 +1,7 @@
 package com.typingstudy.application.user;
 
 import com.typingstudy.domain.user.UserCommand;
+import com.typingstudy.domain.user.UserDetailInfo;
 import com.typingstudy.domain.user.UserInfo;
 import com.typingstudy.domain.user.UserService;
 import com.typingstudy.domain.user.email.EmailService;
@@ -38,6 +39,10 @@ public class UserFacade {
 
     public UserInfo retrieve(Long userId) {
         return userService.retrieve(userId);
+    }
+
+    public UserDetailInfo retrieveDetail(Long userId) {
+        return userService.retrieveDetail(userId);
     }
 
     public void resign(UserCommand.ResignUserRequest request) {

@@ -14,6 +14,7 @@ import org.springframework.restdocs.payload.PayloadDocumentation;
 import org.springframework.restdocs.payload.ResponseFieldsSnippet;
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
 import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -43,6 +44,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @Slf4j
 @Transactional
+@ActiveProfiles({"test", "oauth", "mail"})
 @ExtendWith({RestDocumentationExtension.class, SpringExtension.class})
 @TestMethodOrder(value = MethodOrderer.OrderAnnotation.class)
 @SpringBootTest
@@ -86,7 +88,7 @@ public class TypingDocApiControllerTest {
         body.put("email", email);
         body.put("username", username);
         body.put("password", password);
-        body.put("profileUrl", profileUrl);
+//        body.put("profileUrl", profileUrl);
         ResultActions result = this.mockMvc.perform(
                         post("/api/v1/user/join")
                                 .content(new ObjectMapper().writeValueAsString(body))
@@ -113,9 +115,10 @@ public class TypingDocApiControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .accept(MediaType.ALL)
                 )
-                .andExpect(status().isOk())
-                .andExpect(header().exists("Authorization"));
-        return result.andReturn().getResponse().getHeader("Authorization");
+                .andExpect(status().isOk());
+//                .andExpect(header().exists("Authorization"));
+        Map<String, Object> json = new JacksonJsonParser().parseMap(result.andReturn().getResponse().getContentAsString());
+        return json.get("accessToken").toString();
     }
 
     // email: user1234@gmail.com
@@ -179,6 +182,7 @@ public class TypingDocApiControllerTest {
         body.put("title", "doc example");
         body.put("content", "this is example doc");
         body.put("access", "공개");
+        log.info("before request");
         this.mockMvc.perform(
                         post("/api/v1/docs")
                                 .content(new ObjectMapper().writeValueAsString(body))
@@ -527,6 +531,8 @@ public class TypingDocApiControllerTest {
                         .description("comments of typing doc"),
                 fieldWithPath("data.views")
                         .description("view count of typing doc"),
+                fieldWithPath("data.reviewCount")
+                        .description("review count of typing doc"),
                 fieldWithPath("data.lastStudyDate")
                         .description("last study date"),
                 fieldWithPath("data.createDate")

@@ -42,9 +42,9 @@ public class DocReviewRecommenderImpl implements DocReviewRecommender {
                             " doc from TypingDoc doc" +
                             " where doc.authorId = :userId and (" +
                             " (doc.reviewCount = 0 and FUNCTION('TIMESTAMPDIFF', DAY, doc.createdAt, current_timestamp) < 2)" +
-                            " or (doc.reviewCount = 1 and FUNCTION('TIMESTAMPDIFF', DAY, doc.createdAt, current_timestamp) > 2 and FUNCTION('TIMESTAMPDIFF', DAY, doc.createdAt, current_timestamp) < 4)" +
-                            " or (doc.reviewCount = 2 and FUNCTION('TIMESTAMPDIFF', DAY, doc.createdAt, current_timestamp) > 7 and FUNCTION('TIMESTAMPDIFF', DAY, doc.createdAt, current_timestamp) < 11)" +
-                            " or (doc.reviewCount = 3 and FUNCTION('TIMESTAMPDIFF', DAY, doc.createdAt, current_timestamp) > 25 and FUNCTION('TIMESTAMPDIFF', DAY, doc.createdAt, current_timestamp) < 34)" +
+                            " or (doc.reviewCount = 1 and FUNCTION('TIMESTAMPDIFF', DAY, doc.createdAt, current_timestamp) > 1 and FUNCTION('TIMESTAMPDIFF', DAY, doc.createdAt, current_timestamp) < 4)" +
+                            " or (doc.reviewCount = 2 and FUNCTION('TIMESTAMPDIFF', DAY, doc.createdAt, current_timestamp) > 6 and FUNCTION('TIMESTAMPDIFF', DAY, doc.createdAt, current_timestamp) < 11)" +
+                            " or (doc.reviewCount = 3 and FUNCTION('TIMESTAMPDIFF', DAY, doc.createdAt, current_timestamp) > 24 and FUNCTION('TIMESTAMPDIFF', DAY, doc.createdAt, current_timestamp) < 34)" +
                             ") order by doc.createdAt desc", TypingDoc.class)
                     .setParameter("userId", userId)
                     .setMaxResults(20)
@@ -56,9 +56,9 @@ public class DocReviewRecommenderImpl implements DocReviewRecommender {
                         " doc from TypingDoc doc" +
                         " where doc.authorId = :userId and (" +
                         " (doc.reviewCount = 0 and FUNCTION('datediff', 'day', doc.createdAt, current_timestamp) < 2)" +
-                        " or (doc.reviewCount = 1 and FUNCTION('datediff', 'day', doc.createdAt, current_timestamp) > 2 and FUNCTION('datediff', 'day', doc.createdAt, current_timestamp) < 4)" +
-                        " or (doc.reviewCount = 2 and FUNCTION('datediff', 'day', doc.createdAt, current_timestamp) > 7 and FUNCTION('datediff', 'day', doc.createdAt, current_timestamp) < 11)" +
-                        " or (doc.reviewCount = 3 and FUNCTION('datediff', 'day', doc.createdAt, current_timestamp) > 25 and FUNCTION('datediff', 'day', doc.createdAt, current_timestamp) < 34)" +
+                        " or (doc.reviewCount = 1 and FUNCTION('datediff', 'day', doc.createdAt, current_timestamp) > 1 and FUNCTION('datediff', 'day', doc.createdAt, current_timestamp) < 4)" +
+                        " or (doc.reviewCount = 2 and FUNCTION('datediff', 'day', doc.createdAt, current_timestamp) > 6 and FUNCTION('datediff', 'day', doc.createdAt, current_timestamp) < 11)" +
+                        " or (doc.reviewCount = 3 and FUNCTION('datediff', 'day', doc.createdAt, current_timestamp) > 24 and FUNCTION('datediff', 'day', doc.createdAt, current_timestamp) < 34)" +
                         ") order by doc.createdAt desc", TypingDoc.class)
                 .setParameter("userId", userId)
                 .setMaxResults(20)

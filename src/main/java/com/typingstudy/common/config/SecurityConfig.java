@@ -4,6 +4,8 @@ import com.typingstudy.common.config.jwt.JwtBasicAuthenticationFilter;
 import com.typingstudy.common.config.jwt.JwtAuthorizationFilter;
 import com.typingstudy.common.config.jwt.JwtLogoutFilter;
 import com.typingstudy.common.config.jwt.JwtLogoutSuccessHandler;
+import com.typingstudy.common.config.oauth.CustomAuthenticationFailureHandler;
+import com.typingstudy.common.utils.RefreshTokenGenerator;
 import com.typingstudy.domain.user.jwt.LogoutService;
 import com.typingstudy.domain.user.jwt.RefreshTokenRepository;
 import com.typingstudy.common.config.oauth.CustomAuthenticationSuccessHandler;
@@ -25,6 +27,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     // PrincipalOauth2UserService가 di될 예정
     private final PrincipalOauth2UserService oAuth2UserService;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final RefreshTokenGenerator refreshTokenGenerator;
     private final UserRepository userRepository;
     private final LogoutService logoutService;
 
@@ -44,7 +47,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     .addLogoutHandler(new JwtLogoutFilter(logoutService))
                     .logoutSuccessHandler(new JwtLogoutSuccessHandler())
                     .and()
-                .addFilter(new JwtBasicAuthenticationFilter(authenticationManager(), refreshTokenRepository))
+                .addFilter(new JwtBasicAuthenticationFilter(authenticationManager(), refreshTokenGenerator))
                 .addFilter(new JwtAuthorizationFilter(authenticationManager(), userRepository, refreshTokenRepository, logoutService))
                 .authorizeRequests()
                     .antMatchers(
@@ -56,7 +59,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     .and()
                 .oauth2Login()
                 .loginPage("/unauthorized")
-                .successHandler(new CustomAuthenticationSuccessHandler())
+                .successHandler(new CustomAuthenticationSuccessHandler(refreshTokenGenerator))
+                .failureHandler(new CustomAuthenticationFailureHandler())
                 .userInfoEndpoint()
                 .userService(oAuth2UserService);
         http.httpBasic().disable();

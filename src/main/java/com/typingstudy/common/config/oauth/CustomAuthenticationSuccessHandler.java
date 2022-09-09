@@ -3,6 +3,8 @@ package com.typingstudy.common.config.oauth;
 import com.typingstudy.common.config.auth.PrincipalDetails;
 import com.typingstudy.common.config.jwt.JwtProperty;
 import com.typingstudy.common.config.jwt.JwtUtils;
+import com.typingstudy.common.utils.RefreshTokenGenerator;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
@@ -16,7 +18,9 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
 @Slf4j
+@RequiredArgsConstructor
 public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
+    private final RefreshTokenGenerator refreshTokenGenerator;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws ServletException, IOException {
@@ -27,10 +31,13 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
         // jwt 주입
         String jwt = JwtUtils.createSocialJwt(principal);
         log.info("jwt 주입: {}", jwt);
-        response.addHeader(JwtProperty.JWT_HEADER, JwtProperty.JWT_PREFIX + jwt);
+        String fullJwt = JwtProperty.JWT_PREFIX + jwt;
+        response.addHeader(JwtProperty.JWT_HEADER, fullJwt);
         sendCookie(response, new Cookie(
                 JwtProperty.JWT_HEADER,
-                URLEncoder.encode(JwtProperty.JWT_PREFIX + jwt, StandardCharsets.UTF_8)));
+                URLEncoder.encode(fullJwt, StandardCharsets.UTF_8)));
+        response.sendRedirect("http://localhost:8088/oauth2/success?access_token=" + fullJwt +
+                "&refresh_token=" + refreshTokenGenerator.generateRefreshToken(principal));
         super.onAuthenticationSuccess(request, response, authentication);
     }
 

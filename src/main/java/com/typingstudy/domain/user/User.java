@@ -10,6 +10,7 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
+@Table(name = "users")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends BaseTimeEntity {
@@ -45,11 +46,16 @@ public class User extends BaseTimeEntity {
     }
 
     public User(SocialPlatform platform, String email, String password, String username, String profileUrl) {
+        new User(platform, email, password, username, profileUrl, null);
+    }
+
+    public User(SocialPlatform platform, String email, String password, String username, String profileUrl, String providerId) {
         this.platform = platform;
         this.email = email;
         this.password = password;
-        this.username = processUsername(username);
+        this.username = username;
         this.profileUrl = profileUrl;
+        this.providerId = providerId;
     }
 
     public static User createSocialLoginUser(SocialPlatform platform, String email, String username, String profileUrl) {
@@ -71,6 +77,11 @@ public class User extends BaseTimeEntity {
 
     public void onLogin() {
         this.lastLogin = LocalDateTime.now();
+    }
+
+    public void updateAttributes(String username, String profileUrl) {
+        this.username = username;
+        this.profileUrl = profileUrl;
     }
 
     public FavoriteGroup createFavoriteGroup(String groupName) {

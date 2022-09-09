@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: oauth, prod, mail
+    active: oauth, local, mail
 #---
 #server:
 #  port: 8080

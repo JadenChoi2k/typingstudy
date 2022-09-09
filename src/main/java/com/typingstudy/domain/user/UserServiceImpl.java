@@ -88,6 +88,10 @@ public class UserServiceImpl implements UserService {
         if (!user.getUsername().equals(request.getUsername())) {
             throw new InvalidParameterException("유저 이름이 일치하지 않습니다.");
         }
+        if (user.isSocial()) {
+            // remove from OAuth2.0 service
+            
+        }
         userStore.remove(user);
     }
 

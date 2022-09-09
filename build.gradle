@@ -5,8 +5,8 @@ plugins {
 	id 'java'
 }
 
-group = 'indie'
-version = '0.0.1-SNAPSHOT'
+group = 'com'
+version = '0.0.2-SNAPSHOT'
 sourceCompatibility = '17'
 
 configurations {

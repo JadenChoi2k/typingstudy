@@ -2,6 +2,7 @@ package com.typingstudy.common.config.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.typingstudy.common.config.auth.PrincipalDetails;
+import com.typingstudy.common.utils.RefreshTokenGenerator;
 import com.typingstudy.domain.user.jwt.RefreshToken;
 import com.typingstudy.domain.user.jwt.RefreshTokenRepository;
 import com.typingstudy.interfaces.user.UserDto;
@@ -28,7 +29,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class JwtBasicAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     private final AuthenticationManager authenticationManager;
-    private final RefreshTokenRepository refreshTokenRepository;
+    private final RefreshTokenGenerator refreshTokenGenerator;
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
@@ -51,7 +52,7 @@ public class JwtBasicAuthenticationFilter extends UsernamePasswordAuthentication
         log.info("[{}] 로그인 완료: {}", request.getAttribute("JwtAuth"), principalDetails.getUsername());
         Map<String, String> body = new HashMap<>();
         String accessToken = JwtProperty.JWT_PREFIX + JwtUtils.createDomainJwt(principalDetails);
-        String refreshToken = generateRefreshToken(principalDetails);
+        String refreshToken = refreshTokenGenerator.generateRefreshToken(principalDetails);
         body.put("accessToken", accessToken);
         body.put("refreshToken", refreshToken);
         // send json
@@ -59,23 +60,6 @@ public class JwtBasicAuthenticationFilter extends UsernamePasswordAuthentication
         response.getWriter().print(new ObjectMapper().writeValueAsString(body));
 //        response.addHeader(JwtProperty.JWT_HEADER, accessToken);
         log.info("user({})에게 jwt 발급 완료", principalDetails.getUsername());
-    }
-
-    // returns refresh token
-    @Transactional
-    protected String generateRefreshToken(PrincipalDetails principalDetails) {
-        Long userId = principalDetails.getUser().getId();
-        Optional<RefreshToken> refreshTokenEntity = refreshTokenRepository.findById(userId);
-        String refreshToken = JwtProperty.JWT_PREFIX + JwtUtils.createDomainJwt(principalDetails, 60000 * 60);
-        if (refreshTokenEntity.isEmpty()) {
-            log.info("refresh token 신규 생성, userId={}", userId);
-            var entity = new RefreshToken(userId, refreshToken);
-            refreshTokenRepository.save(entity);
-        } else {
-            refreshTokenEntity.get().setToken(refreshToken);
-            refreshTokenRepository.save(refreshTokenEntity.get());
-        }
-        return refreshToken;
     }
 
     @Override
